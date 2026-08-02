@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Service — Panduan Perkuliahan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F5F1;
+    --surface:#FFFFFF;
+    --ink:#1A1D23;
+    --ink-soft:#5B5F68;
+    --border:#E1DED5;
+    --blue:#3457D5;
+    --blue-soft:#EAEFFC;
+    --green:#1F9D65;
+    --green-soft:#E8F6EF;
+    --amber:#C97A0A;
+    --amber-soft:#FBEEDD;
+    --mono:'IBM Plex Mono', monospace;
+    --sans:'IBM Plex Sans', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px;}
+
+  /* Topbar */
+  .topbar{
+    position:sticky; top:0; z-index:20;
+    background:rgba(246,245,241,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar .wrap{display:flex; align-items:center; justify-content:space-between; height:64px;}
+  .brand{font-family:var(--mono); font-weight:600; font-size:15px; letter-spacing:-0.01em; display:flex; align-items:center; gap:8px;}
+  .brand .dot{width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block;}
+  .navlinks{display:flex; gap:28px; font-family:var(--mono); font-size:13px;}
+  .navlinks a{text-decoration:none; color:var(--ink-soft); border-bottom:1px solid transparent; padding-bottom:2px;}
+  .navlinks a:hover{color:var(--ink); border-color:var(--ink);}
+
+  /* Hero */
+  .hero{padding:72px 0 56px;}
+  .hero-grid{display:grid; grid-template-columns:1.1fr 1fr; gap:48px; align-items:center;}
+  .eyebrow{font-family:var(--mono); font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--blue); font-weight:600; margin-bottom:16px;}
+  h1{font-family:var(--mono); font-size:40px; line-height:1.15; letter-spacing:-0.02em; font-weight:700; margin-bottom:18px;}
+  .hero p{font-size:16px; color:var(--ink-soft); max-width:46ch; margin-bottom:22px;}
+  .hero-meta{display:flex; gap:24px; flex-wrap:wrap;}
+  .meta-chip{font-family:var(--mono); font-size:12px; color:var(--ink-soft);}
+  .meta-chip b{color:var(--ink); font-weight:600;}
+
+  /* Terminal / API card */
+  .api-card{
+    background:#14171C;
+    border-radius:10px;
+    overflow:hidden;
+    box-shadow:0 20px 40px -20px rgba(20,23,28,0.45);
+    font-family:var(--mono);
+    font-size:12.5px;
+  }
+  .api-card .bar{display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.08);}
+  .api-card .bar span{width:9px; height:9px; border-radius:50%; background:#3A3F49; flex-shrink:0;}
+  .api-card .req{padding:16px; color:#8FE3B4;}
+  .api-card .req .method{color:#5EA0FF; font-weight:600;}
+  .api-card .req .host{color:#8B90A0;}
+  .api-card .res{padding:0 16px 18px; color:#D8DCE6;}
+  .api-card .status{color:#8FE3B4; font-weight:600; margin:6px 0 10px; display:block;}
+  .api-card pre{white-space:pre-wrap; word-break:break-word; color:#D8DCE6;}
+  .api-card .k{color:#F2A65A;}
+  .api-card .v{color:#8FE3B4;}
+  .api-card .v-arr{color:#5EA0FF;}
+
+  /* Sections */
+  section{padding:56px 0; border-top:1px solid var(--border);}
+  .section-head{display:flex; align-items:baseline; gap:14px; margin-bottom:28px;}
+  .section-head .idx{font-family:var(--mono); font-size:12px; color:var(--ink-soft);}
+  h2{font-family:var(--mono); font-size:22px; letter-spacing:-0.01em; font-weight:600;}
+
+  /* Silabus cards */
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px;}
+  .card .num{font-family:var(--mono); font-size:24px; font-weight:700; color:var(--blue);}
+  .card .label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); margin-top:6px;}
+  .card .sub{font-size:13px; color:var(--ink-soft); margin-top:8px;}
+  .cpmk{margin-top:20px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:22px 24px;}
+  .cpmk h3{font-family:var(--mono); font-size:13px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); margin-bottom:12px; font-weight:600;}
+  .cpmk ul{padding-left:18px; color:var(--ink); font-size:14.5px;}
+  .cpmk li{margin-bottom:8px;}
+
+  /* Track toggle */
+  .track-toggle{display:inline-flex; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:3px; margin-bottom:20px;}
+  .track-toggle button{
+    font-family:var(--mono); font-size:12.5px; padding:8px 16px; border-radius:6px; border:none;
+    background:transparent; color:var(--ink-soft); cursor:pointer;
+  }
+  .track-toggle button.active{background:var(--ink); color:#fff;}
+
+  /* Endpoint table */
+  .endpoint-list{border:1px solid var(--border); border-radius:10px; overflow:hidden; background:var(--surface);}
+  .endpoint-row{display:grid; grid-template-columns:88px 120px 1fr 90px; gap:14px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--border); text-decoration:none; color:var(--ink);}
+  .endpoint-row:last-child{border-bottom:none;}
+  .endpoint-row.header{background:#FAFAF7; font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft);}
+  .endpoint-row:not(.header):not(.disabled):hover{background:#FAFAF7;}
+  .tag{font-family:var(--mono); font-size:10.5px; font-weight:700; text-align:center; padding:4px 0; border-radius:5px; letter-spacing:0.02em;}
+  .tag-lecture{background:var(--blue-soft); color:var(--blue);}
+  .tag-practicum{background:var(--green-soft); color:var(--green);}
+  .tag-exam{background:var(--amber-soft); color:var(--amber);}
+  .path{font-family:var(--mono); font-size:12.5px; color:var(--ink-soft);}
+  .topic{font-size:14px;}
+  .status-txt{font-family:var(--mono); font-size:11px; color:var(--ink-soft); text-align:right;}
+  .endpoint-row.disabled{color:var(--ink-soft); cursor:default;}
+  .endpoint-row.disabled .topic{color:var(--ink-soft);}
+
+  .track-panel{display:none;}
+  .track-panel.active{display:block;}
+
+  /* Dosen */
+  .dosen-card{display:flex; gap:20px; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:24px;}
+  .avatar{width:64px; height:64px; border-radius:50%; background:var(--ink); color:#fff; font-family:var(--mono); font-weight:600; font-size:20px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .dosen-name{font-family:var(--mono); font-size:18px; font-weight:600;}
+  .dosen-role{font-size:13.5px; color:var(--ink-soft); margin-top:3px;}
+  .dosen-scope{margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;}
+  .pill{font-family:var(--mono); font-size:11px; background:var(--bg); border:1px solid var(--border); padding:4px 10px; border-radius:20px; color:var(--ink-soft);}
+
+  /* Referensi */
+  .ref-list{display:flex; flex-direction:column; gap:0;}
+  .ref-item{display:flex; gap:16px; padding:16px 0; border-bottom:1px solid var(--border);}
+  .ref-item:last-child{border-bottom:none;}
+  .ref-idx{font-family:var(--mono); font-size:12px; color:var(--ink-soft); padding-top:2px; width:24px; flex-shrink:0;}
+  .ref-body b{font-size:14.5px;}
+  .ref-body .meta{font-size:13px; color:var(--ink-soft); margin-top:2px;}
+  .ref-type{font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--blue); margin-top:4px; display:inline-block;}
+
+  footer{padding:32px 0 48px; text-align:center; font-family:var(--mono); font-size:12px; color:var(--ink-soft); border-top:1px solid var(--border);}
+
+  @media (max-width:820px){
+    .hero-grid{grid-template-columns:1fr;}
+    .grid-3{grid-template-columns:1fr;}
+    .endpoint-row{grid-template-columns:60px 1fr; grid-template-areas:"tag topic" "path status";}
+    .endpoint-row .path{grid-column:1/-1;}
+    .endpoint-row .status-txt{text-align:left; grid-column:1/-1;}
+    .navlinks{display:none;}
+    h1{font-size:30px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span>web-service · panduan</div>
+    <div class="navlinks">
+      <a href="#silabus">Silabus</a>
+      <a href="#pertemuan">Pertemuan</a>
+      <a href="#dosen">Dosen</a>
+      <a href="#referensi">Referensi</a>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Panduan Online</div>
+      <h1>Web Service</h1>
+      <p>Materi kuliah dan praktikum untuk membangun, mengamankan, dan menyebarkan layanan berbasis SOAP, REST, GraphQL, gRPC, hingga arsitektur microservices.</p>
+      <div class="hero-meta">
+        <div class="meta-chip">SKS Kuliah <b>2</b></div>
+        <div class="meta-chip">SKS Praktikum <b>1</b></div>
+        <div class="meta-chip">Prasyarat <b>Backend &amp; Frontend Programming</b></div>
+      </div>
+    </div>
+    <div class="api-card">
+      <div class="bar"><span></span><span></span><span></span></div>
+      <div class="req"><span class="method">GET</span> /courses/web-service HTTP/1.1<br><span class="host">Host: kuliah.kampus.ac.id</span></div>
+      <div class="res">
+<span class="status">200 OK</span>
+<pre>{
+  <span class="k">"kode_mk"</span>: <span class="v">"WS-201"</span>,
+  <span class="k">"nama"</span>: <span class="v">"Web Service"</span>,
+  <span class="k">"sks"</span>: { <span class="k">"kuliah"</span>: <span class="v-arr">2</span>, <span class="k">"praktikum"</span>: <span class="v-arr">1</span> },
+  <span class="k">"dosen"</span>: <span class="v">"Philipus Suryo Subandoro"</span>,
+  <span class="k">"prasyarat"</span>: [
+    <span class="v">"Backend Programming"</span>,
+    <span class="v">"Frontend Programming"</span>
+  ],
+  <span class="k">"status"</span>: <span class="v">"aktif"</span>
+}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section id="silabus">
+  <div class="wrap">
+    <div class="section-head"><span class="idx">01</span><h2>Silabus</h2></div>
+    <div class="grid-3">
+      <div class="card">
+        <div class="num">16×</div>
+        <div class="label">Pertemuan Kuliah</div>
+        <div class="sub">14 sesi materi + UTS + UAS, 100 menit/pertemuan</div>
+      </div>
+      <div class="card">
+        <div class="num">15×</div>
+        <div class="label">Pertemuan Praktikum</div>
+        <div class="sub">14 sesi jobsheet + UAS (demo proyek akhir), 100 menit/pertemuan</div>
+      </div>
+      <div class="card">
+        <div class="num">4</div>
+        <div class="label">Arsitektur yang Dipelajari</div>
+        <div class="sub">SOAP, REST lanjutan, GraphQL, gRPC &amp; microservices</div>
+      </div>
+    </div>
+    <div class="cpmk">
+      <h3>Capaian Pembelajaran Mata Kuliah</h3>
+      <ul>
+        <li>Mahasiswa mampu menjelaskan evolusi arsitektur layanan dari monolith, SOA, hingga microservices.</li>
+        <li>Mahasiswa mampu merancang dan mengimplementasikan web service menggunakan SOAP, REST lanjutan, GraphQL, dan gRPC.</li>
+        <li>Mahasiswa mampu menerapkan mekanisme keamanan (OAuth2, API key management, mTLS) pada layanan yang dibangun.</li>
+        <li>Mahasiswa mampu merancang arsitektur microservices dengan API gateway, service discovery, dan komunikasi asinkron.</li>
+        <li>Mahasiswa mampu mendokumentasikan, menguji, memonitor, dan men-deploy web service ke platform cloud.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="pertemuan">
+  <div class="wrap">
+    <div class="section-head"><span class="idx">02</span><h2>Pertemuan</h2></div>
+
+    <div class="track-toggle">
+      <button class="active" onclick="showTrack('kuliah', this)">Kuliah</button>
+      <button onclick="showTrack('praktikum', this)">Praktikum</button>
+    </div>
+
+    <div id="track-kuliah" class="track-panel active">
+      <div class="endpoint-list">
+        <div class="endpoint-row header"><div>Tag</div><div>Path</div><div>Topik</div><div>Status</div></div>
+
+        <a class="endpoint-row" href="sesi-01.html">
+          <div class="tag tag-lecture">SESI</div>
+          <div class="path">/minggu-01</div>
+          <div class="topic">Pengantar Web Service &amp; Evolusi Arsitektur</div>
+          <div class="status-txt">tersedia</div>
+        </a>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-02</div><div class="topic">Distributed System: konsistensi, latency, fault tolerance</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-03</div><div class="topic">SOAP Web Service: struktur, envelope, WSDL, UDDI</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-04</div><div class="topic">REST Lanjutan: Richardson Maturity Model &amp; HATEOAS</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-05</div><div class="topic">Perbandingan SOAP vs REST vs GraphQL vs gRPC</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-06</div><div class="topic">GraphQL: skema, query, mutation, resolver</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-07</div><div class="topic">gRPC &amp; Protocol Buffers</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-exam">UTS</div><div class="path">/uts</div><div class="topic">Ujian Tengah Semester</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-08</div><div class="topic">Keamanan Lanjutan: OAuth2, API Key Management, mTLS</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-09</div><div class="topic">API Gateway &amp; Reverse Proxy</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-10</div><div class="topic">Microservices: Service Discovery, Load Balancing, Circuit Breaker</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-11</div><div class="topic">Komunikasi Asinkron: Message Queue &amp; Event-Driven Architecture</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-12</div><div class="topic">API Versioning &amp; Backward Compatibility</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-13</div><div class="topic">Monitoring, Logging &amp; Observability</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-14</div><div class="topic">WebSocket, Server-Sent Events &amp; Real-time Web Service</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-exam">UAS</div><div class="path">/uas</div><div class="topic">Ujian Akhir Semester</div><div class="status-txt">segera</div></div>
+      </div>
+    </div>
+
+    <div id="track-praktikum" class="track-panel">
+      <div class="endpoint-list">
+        <div class="endpoint-row header"><div>Tag</div><div>Path</div><div>Topik</div><div>Status</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-01</div><div class="topic">Setup Environment Lanjutan (Docker &amp; Tools API Testing)</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-02</div><div class="topic">Membuat SOAP Web Service Sederhana + WSDL</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-03</div><div class="topic">Konsumsi SOAP Service dari Client</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-04</div><div class="topic">GraphQL API Sederhana (Render + Neon)</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-05</div><div class="topic">Query &amp; Mutation Lanjutan GraphQL</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-06</div><div class="topic">Service dengan gRPC &amp; Protocol Buffers</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-07</div><div class="topic">Implementasi OAuth2</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-08</div><div class="topic">API Gateway Sederhana (Docker Compose / Cloudflare Workers)</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-09</div><div class="topic">Memecah Aplikasi Menjadi Microservices</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-10</div><div class="topic">Komunikasi Antar Service via Message Queue</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-11</div><div class="topic">Dokumentasi API Otomatis (OpenAPI/Swagger)</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-12</div><div class="topic">Automated Testing &amp; Monitoring API</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-13</div><div class="topic">Deployment Microservices (Docker Compose / Edge)</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-practicum">LAB</div><div class="path">/lab-14</div><div class="topic">Persiapan &amp; Integrasi Proyek Akhir</div><div class="status-txt">segera</div></div>
+        <div class="endpoint-row disabled"><div class="tag tag-exam">UAS</div><div class="path">/uas-praktikum</div><div class="topic">Demo &amp; Presentasi Proyek Akhir</div><div class="status-txt">segera</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="dosen">
+  <div class="wrap">
+    <div class="section-head"><span class="idx">03</span><h2>Dosen</h2></div>
+    <div class="dosen-card">
+      <div class="avatar">PS</div>
+      <div>
+        <div class="dosen-name">Philipus Suryo Subandoro</div>
+        <div class="dosen-role">Dosen Pengampu — Web Service (Kuliah &amp; Praktikum)</div>
+        <div class="dosen-scope">
+          <span class="pill">Kuliah 2 SKS</span>
+          <span class="pill">Praktikum 1 SKS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="referensi">
+  <div class="wrap">
+    <div class="section-head"><span class="idx">04</span><h2>Referensi</h2></div>
+    <div class="ref-list">
+      <div class="ref-item">
+        <div class="ref-idx">01</div>
+        <div class="ref-body">
+          <b>RESTful Web APIs</b>
+          <div class="meta">Leonard Richardson &amp; Sam Ruby — O'Reilly Media</div>
+          <span class="ref-type">Buku</span>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-idx">02</div>
+        <div class="ref-body">
+          <b>Building Microservices, 2nd Edition</b>
+          <div class="meta">Sam Newman — O'Reilly Media</div>
+          <span class="ref-type">Buku</span>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-idx">03</div>
+        <div class="ref-body">
+          <b>Architectural Styles and the Design of Network-based Software Architectures</b>
+          <div class="meta">Roy T. Fielding — Disertasi Doktoral, UC Irvine (sumber asal prinsip REST)</div>
+          <span class="ref-type">Disertasi</span>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-idx">04</div>
+        <div class="ref-body">
+          <b>SOA Principles of Service Design</b>
+          <div class="meta">Thomas Erl — Prentice Hall</div>
+          <span class="ref-type">Buku</span>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-idx">05</div>
+        <div class="ref-body">
+          <b>Dokumentasi Resmi GraphQL</b>
+          <div class="meta">graphql.org</div>
+          <span class="ref-type">Dokumentasi</span>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-idx">06</div>
+        <div class="ref-body">
+          <b>Dokumentasi Resmi gRPC</b>
+          <div class="meta">grpc.io</div>
+          <span class="ref-type">Dokumentasi</span>
+        </div>
+      </div>
+      <div class="ref-item">
+        <div class="ref-idx">07</div>
+        <div class="ref-body">
+          <b>OpenAPI Specification</b>
+          <div class="meta">spec.openapis.org</div>
+          <span class="ref-type">Dokumentasi</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>Panduan Perkuliahan &amp; Praktikum Web Service · Diampu oleh Philipus Suryo Subandoro</footer>
+
+<script>
+  function showTrack(name, btn){
+    document.querySelectorAll('.track-panel').forEach(function(p){p.classList.remove('active');});
+    document.getElementById('track-' + name).classList.add('active');
+    document.querySelectorAll('.track-toggle button').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
