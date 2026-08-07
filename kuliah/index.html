@@ -78,30 +78,8 @@
 </div>
 
 <div class="wrap">
-  <div class="endpoint-list">
+  <div id="session-list" class="endpoint-list">
     <div class="endpoint-row header"><div>Tag</div><div>Path</div><div>Topik</div><div>Status</div></div>
-
-    <a class="endpoint-row" href="sesi-01.html">
-      <div class="tag tag-lecture">SESI</div>
-      <div class="path">/minggu-01</div>
-      <div class="topic">Pengantar Web Service &amp; Evolusi Arsitektur</div>
-      <div class="status-txt">tersedia</div>
-    </a>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-02</div><div class="topic">Distributed System: konsistensi, latency, fault tolerance</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-03</div><div class="topic">SOA &amp; SOAP: Sejarah, WSDL sebagai Contract-First, dan Alasan Beralih ke REST</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-04</div><div class="topic">REST Lanjutan: Richardson Maturity Model &amp; HATEOAS</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-05</div><div class="topic">Perbandingan SOAP vs REST vs GraphQL vs gRPC</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-06</div><div class="topic">GraphQL: skema, query, mutation, resolver</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-07</div><div class="topic">gRPC &amp; Protocol Buffers</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-exam">UTS</div><div class="path">/uts</div><div class="topic">Ujian Tengah Semester</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-08</div><div class="topic">Keamanan Lanjutan: OAuth2, API Key Management, mTLS</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-09</div><div class="topic">API Gateway &amp; Reverse Proxy</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-10</div><div class="topic">Microservices: Service Discovery, Load Balancing, Circuit Breaker</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-11</div><div class="topic">Komunikasi Asinkron: Message Queue &amp; Event-Driven Architecture</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-12</div><div class="topic">API Versioning &amp; Backward Compatibility</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-13</div><div class="topic">Monitoring, Logging &amp; Observability</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-lecture">SESI</div><div class="path">/minggu-14</div><div class="topic">WebSocket, Server-Sent Events &amp; Real-time Web Service</div><div class="status-txt">segera</div></div>
-    <div class="endpoint-row disabled"><div class="tag tag-exam">UAS</div><div class="path">/uas</div><div class="topic">Proyek Desain Individual — Arsitektur Komponen dari Sistem Kelompok</div><div class="status-txt">segera</div></div>
   </div>
 
   <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px 22px; margin-bottom:56px; font-size:13.5px; color:var(--ink-soft);">
@@ -109,6 +87,58 @@
     <p style="margin-top:8px;">UAS kuliah bersifat <b style="color:var(--ink);">individu</b> dan menyambung dari proyek kelompok di praktikum. Tiap mahasiswa memilih satu komponen/service yang menjadi tanggung jawabnya dalam sistem kelompok, lalu menulis dokumen desain individual: pilihan protokol (SOAP/REST/GraphQL/gRPC), strategi keamanan, dan trade-off arsitektur yang diambil untuk komponen tersebut. UAS praktikum tetap berupa demo sistem terintegrasi yang dikerjakan berkelompok.</p>
   </div>
 </div>
+
+<script>
+  /* =====================================================================
+     KONFIGURASI SESI — ubah "active" ke true/false untuk menampilkan
+     atau menyembunyikan tombol buka materi. Tidak perlu ubah bagian lain.
+     - type   : 'sesi' | 'uts' | 'uas'
+     - file   : nama file materi (kosongkan "" jika belum ada filenya)
+     - active : true = bisa diklik & berstatus "tersedia"
+                false = tampil sebagai baris nonaktif berstatus "segera"
+     ===================================================================== */
+  const SESSIONS = [
+    { type:'sesi', path:'/minggu-01', topic:'Pengantar Web Service & Evolusi Arsitektur', file:'sesi-01.html', active:true },
+    { type:'sesi', path:'/minggu-02', topic:'Distributed System: konsistensi, latency, fault tolerance', file:'sesi-02.html', active:true },
+    { type:'sesi', path:'/minggu-03', topic:'SOA & SOAP: Sejarah, WSDL sebagai Contract-First, dan Alasan Beralih ke REST', file:'sesi-03.html', active:false },
+    { type:'sesi', path:'/minggu-04', topic:'REST Lanjutan: Richardson Maturity Model & HATEOAS', file:'sesi-04.html', active:false },
+    { type:'sesi', path:'/minggu-05', topic:'Perbandingan SOAP vs REST vs GraphQL vs gRPC', file:'sesi-05.html', active:false },
+    { type:'sesi', path:'/minggu-06', topic:'GraphQL: skema, query, mutation, resolver', file:'sesi-06.html', active:false },
+    { type:'sesi', path:'/minggu-07', topic:'gRPC & Protocol Buffers', file:'sesi-07.html', active:false },
+    { type:'uts',  path:'/uts', topic:'Ujian Tengah Semester', file:'', active:false },
+    { type:'sesi', path:'/minggu-08', topic:'Keamanan Lanjutan: OAuth2, API Key Management, mTLS', file:'sesi-08.html', active:false },
+    { type:'sesi', path:'/minggu-09', topic:'API Gateway & Reverse Proxy', file:'sesi-09.html', active:false },
+    { type:'sesi', path:'/minggu-10', topic:'Microservices: Service Discovery, Load Balancing, Circuit Breaker', file:'sesi-10.html', active:false },
+    { type:'sesi', path:'/minggu-11', topic:'Komunikasi Asinkron: Message Queue & Event-Driven Architecture', file:'sesi-11.html', active:false },
+    { type:'sesi', path:'/minggu-12', topic:'API Versioning & Backward Compatibility', file:'sesi-12.html', active:false },
+    { type:'sesi', path:'/minggu-13', topic:'Monitoring, Logging & Observability', file:'sesi-13.html', active:false },
+    { type:'sesi', path:'/minggu-14', topic:'WebSocket, Server-Sent Events & Real-time Web Service', file:'sesi-14.html', active:false },
+    { type:'uas',  path:'/uas', topic:'Proyek Desain Individual — Arsitektur Komponen dari Sistem Kelompok', file:'', active:false },
+  ];
+
+  const TAG_LABEL = { sesi:'SESI', uts:'UTS', uas:'UAS' };
+  const TAG_CLASS = { sesi:'tag-lecture', uts:'tag-exam', uas:'tag-exam' };
+
+  function renderSessions(){
+    const list = document.getElementById('session-list');
+    const rows = SESSIONS.map(function(item){
+      const tagLabel = TAG_LABEL[item.type];
+      const tagClass = TAG_CLASS[item.type];
+      const canOpen = item.active && item.file;
+      const statusTxt = canOpen ? 'tersedia' : 'segera';
+      const inner = '<div class="tag ' + tagClass + '">' + tagLabel + '</div>'
+                  + '<div class="path">' + item.path + '</div>'
+                  + '<div class="topic">' + item.topic + '</div>'
+                  + '<div class="status-txt">' + statusTxt + '</div>';
+      return canOpen
+        ? '<a class="endpoint-row" href="' + item.file + '">' + inner + '</a>'
+        : '<div class="endpoint-row disabled">' + inner + '</div>';
+    }).join('');
+    list.insertAdjacentHTML('beforeend', rows);
+  }
+
+  renderSessions();
+</script>
 
 <footer>Kuliah · Web Service · Philipus Suryo Subandoro</footer>
 
