@@ -44,6 +44,7 @@
   .tag-exam{background:var(--amber-soft); color:var(--amber);}
   .path{font-family:var(--mono); font-size:12.5px; color:var(--ink-soft);}
   .topic{font-size:14px;}
+  .example{font-family:var(--mono); font-size:11px; color:var(--green); margin-top:3px;}
   .status-txt{font-family:var(--mono); font-size:11px; color:var(--ink-soft); text-align:right;}
   .endpoint-row.disabled{color:var(--ink-soft); cursor:default;}
   .endpoint-row.disabled .topic{color:var(--ink-soft);}
@@ -106,13 +107,13 @@
     { type:'sesi', path:'/minggu-06', topic:'GraphQL: skema, query, mutation, resolver', file:'sesi-06.html', active:false },
     { type:'sesi', path:'/minggu-07', topic:'gRPC & Protocol Buffers', file:'sesi-07.html', active:false },
     { type:'uts',  path:'/uts', topic:'Ujian Tengah Semester', file:'', active:false },
-    { type:'sesi', path:'/minggu-08', topic:'Keamanan Lanjutan: OAuth2, API Key Management, mTLS', file:'sesi-08.html', active:false },
-    { type:'sesi', path:'/minggu-09', topic:'API Gateway & Reverse Proxy', file:'sesi-09.html', active:false },
-    { type:'sesi', path:'/minggu-10', topic:'Microservices: Service Discovery, Load Balancing, Circuit Breaker', file:'sesi-10.html', active:false },
-    { type:'sesi', path:'/minggu-11', topic:'Komunikasi Asinkron: Message Queue & Event-Driven Architecture', file:'sesi-11.html', active:false },
+    { type:'sesi', path:'/minggu-08', topic:'Keamanan Lanjutan: OAuth2, API Key Management, mTLS', file:'sesi-08.html', active:false, example:'Contoh implementasi: validasi JWT di edge (Cloudflare Workers), API key middleware (Render)' },
+    { type:'sesi', path:'/minggu-09', topic:'API Gateway & Reverse Proxy', file:'sesi-09.html', active:false, example:'Contoh implementasi: Cloudflare Workers sebagai edge gateway, Render sebagai origin service' },
+    { type:'sesi', path:'/minggu-10', topic:'Microservices: Service Discovery, Load Balancing, Circuit Breaker', file:'sesi-10.html', active:false, example:'Contoh implementasi: deploy tiap service terpisah di Render, database-per-service dengan Neon' },
+    { type:'sesi', path:'/minggu-11', topic:'Komunikasi Asinkron: Message Queue & Event-Driven Architecture', file:'sesi-11.html', active:false, example:'Contoh implementasi: Cloudflare Queues, webhook antar service di Render' },
     { type:'sesi', path:'/minggu-12', topic:'API Versioning & Backward Compatibility', file:'sesi-12.html', active:false },
-    { type:'sesi', path:'/minggu-13', topic:'Monitoring, Logging & Observability', file:'sesi-13.html', active:false },
-    { type:'sesi', path:'/minggu-14', topic:'WebSocket, Server-Sent Events & Real-time Web Service', file:'sesi-14.html', active:false },
+    { type:'sesi', path:'/minggu-13', topic:'Monitoring, Logging & Observability', file:'sesi-13.html', active:false, example:'Contoh implementasi: Render Metrics, Cloudflare Logs, Vercel Analytics' },
+    { type:'sesi', path:'/minggu-14', topic:'WebSocket, Server-Sent Events & Real-time Web Service', file:'sesi-14.html', active:false, example:'Contoh implementasi: WebSocket hosting di Render, Cloudflare Durable Objects' },
     { type:'uas',  path:'/uas', topic:'Proyek Desain Individual — Arsitektur Komponen dari Sistem Kelompok', file:'', active:false },
   ];
 
@@ -128,7 +129,7 @@
       const statusTxt = canOpen ? 'tersedia' : 'segera';
       const inner = '<div class="tag ' + tagClass + '">' + tagLabel + '</div>'
                   + '<div class="path">' + item.path + '</div>'
-                  + '<div class="topic">' + item.topic + '</div>'
+                  + '<div class="topic">' + item.topic + (item.example ? '<div class="example">' + item.example + '</div>' : '') + '</div>'
                   + '<div class="status-txt">' + statusTxt + '</div>';
       return canOpen
         ? '<a class="endpoint-row" href="' + item.file + '">' + inner + '</a>'
