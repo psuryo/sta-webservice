@@ -203,6 +203,7 @@
       <li>Berhasil mengirim SOAP request lewat Postman dan mendapat response 200</li>
       <li>Berhasil menemukan nilai hasil di dalam SOAP response</li>
       <li>Sudah menuliskan minimal 3 poin perbandingan SOAP/XML vs REST/JSON dari pengalaman langsung</li>
+      <li>Aplikasi kecil berhasil menerima input, mengirim SOAP request, dan menampilkan hasil konversi</li>
     </ul>
   </div>
 </section>
@@ -211,8 +212,14 @@
   <div class="wrap">
     <div class="section-label">Tugas &amp; Latihan</div>
     <div class="task-box">
-      <div class="lbl">Latihan Mandiri</div>
-      <p style="margin-bottom:0;">Ambil screenshot SOAP request dan response yang berhasil dikirim. Tuliskan refleksi singkat (3-5 kalimat) yang membandingkan pengalaman memakai SOAP di lab ini dengan OpenAPI di lab 03 — mana yang terasa lebih ringkas, dan menurut Anda kapan SOAP tetap menjadi pilihan yang masuk akal. Kumpulkan sebelum lab 04.</p>
+      <div class="lbl">Latihan Mandiri: Bangun Aplikasi Kecil</div>
+      <p>Setelah berhasil mengirim request lewat Postman, buat aplikasi kecil (boleh CLI script atau halaman sederhana) yang mengonsumsi operasi <code>NumberToWords</code> dari service ini:</p>
+      <ul style="margin-bottom:14px;">
+        <li>Menerima input angka dari pengguna (lewat argumen command line, form input, atau prompt sederhana).</li>
+        <li>Menyusun SOAP envelope secara terprogram (bukan hardcode), lalu mengirimkannya lewat HTTP POST ke endpoint service.</li>
+        <li>Mem-parsing XML response dan menampilkan hasil konversinya ke pengguna dalam bentuk yang mudah dibaca.</li>
+      </ul>
+      <p style="margin-bottom:0;"><b>Catatan teknis:</b> gunakan bahasa/runtime sisi server (Python, Node.js, atau bahasa lain yang biasa dipakai di Backend Programming) — bukan JavaScript langsung di browser, karena layanan ini tidak menyediakan header CORS sehingga request dari browser kemungkinan akan diblokir. Sertakan juga refleksi singkat (3-5 kalimat): apa yang terasa lebih rumit saat membangun aplikasi nyata di atas SOAP dibanding kalau memakai REST/JSON. Kumpulkan kode dan refleksinya sebelum lab 03.</p>
     </div>
   </div>
 </section>
@@ -223,6 +230,7 @@
     <div class="ref-mini">
       <div><b>Number Conversion Service (WSDL)</b> — dataaccess.com/webservicesserver</div>
       <div><b>Postman Learning Center</b> — learning.postman.com, bagian "Sending SOAP Requests"</div>
+      <div><b>Contoh SOAP Client</b> — Python: modul <code>requests</code> untuk POST manual, atau <code>zeep</code>; Node.js: modul <code>strong-soap</code> atau <code>axios</code> untuk POST manual</div>
       <div><b>Kuliah Sesi 03</b> — SOA &amp; SOAP: Sejarah, WSDL sebagai Contract-First (materi terkait)</div>
     </div>
   </div>
