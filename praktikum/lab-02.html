@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lab 02 — Demo Singkat SOAP | Web Service</title>
+<title>Lab 02 — Demo SOAP | Web Service</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -60,32 +60,28 @@
   .step-num{font-family:var(--mono); font-size:14px; font-weight:700; color:var(--green); width:26px; flex-shrink:0; padding-top:2px;}
   .step-body h3{font-size:15.5px; font-weight:600; margin-bottom:6px;}
   .step-body p{font-size:14px; margin-bottom:8px;}
-  .code-block{background:#14171C; color:#D8DCE6; font-family:var(--mono); font-size:13px; border-radius:8px; padding:14px 16px; overflow-x:auto; white-space:pre;}
+  .code-block{background:#14171C; color:#D8DCE6; font-family:var(--mono); font-size:12px; border-radius:8px; padding:14px 16px; overflow-x:auto; white-space:pre;}
+  .code-block .tg{color:#5EA0FF;}
+  .code-block .st{color:#8FE3B4;}
   .code-block .cmt{color:#8B90A0;}
-  .code-block .cmd{color:#8FE3B4;}
-  .code-block .tag-xml{color:#79C0FF;}
-  .code-block .val{color:#FFD700;}
-  .code-block .err{color:#FF7B72;}
 
   .checklist{list-style:none; padding:0; display:flex; flex-direction:column; gap:8px;}
   .checklist li{display:flex; align-items:center; gap:10px; font-size:14.5px;}
   .checklist li::before{content:'☐'; color:var(--green); font-size:16px;}
 
-  .compare-table{width:100%; border-collapse:collapse; font-size:14px; background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden;}
-  .compare-table th, .compare-table td{padding:11px 14px; text-align:left; border-bottom:1px solid var(--border);}
-  .compare-table th{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); background:#FAFAF7;}
-  .compare-table tr:last-child td{border-bottom:none;}
-
   .task-box{background:var(--green-soft); border:1px solid #BFE6D3; border-radius:8px; padding:18px 20px;}
   .task-box .lbl{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--green); font-weight:700; margin-bottom:8px;}
+
+  .link-note{background:var(--blue-soft); border:1px solid #C7D3F7; border-radius:8px; padding:14px 18px; font-size:13.5px; color:var(--ink);}
+  .link-note b{color:var(--blue);}
+
+  .fallback-note{background:var(--amber-soft); border:1px solid #EAD4AE; border-radius:8px; padding:14px 18px; font-size:13.5px; color:var(--ink);}
+  .fallback-note b{display:block; font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--amber); margin-bottom:6px;}
 
   .ref-mini{display:flex; flex-direction:column; gap:8px;}
   .ref-mini div{font-size:13.5px; color:var(--ink-soft); border-bottom:1px dashed var(--border); padding-bottom:8px;}
   .ref-mini div:last-child{border-bottom:none;}
   .ref-mini b{color:var(--ink);}
-
-  .info-box{background:var(--amber-soft); border:1px solid #EAD4AE; border-radius:8px; padding:14px 18px; margin-bottom:14px; font-size:13.5px; color:var(--ink);}
-  .info-box b{color:var(--ink);}
 
   footer{padding:32px 0 48px; text-align:center; font-family:var(--mono); font-size:12px; color:var(--ink-soft); border-top:1px solid var(--border);}
 
@@ -107,24 +103,29 @@
 <div class="wrap session-head">
   <div class="crumb"><a href="../index.html">Beranda</a><span class="sep">/</span><a href="index.html">Praktikum</a><span class="sep">/</span><span>lab-02</span></div>
   <span class="tag">LAB 02</span>
-  <h1>Demo Singkat SOAP: Eksplorasi<br>Request/Response &amp; WSDL</h1>
-  <p class="subtitle">Mengirim request SOAP ke layanan publik siap pakai, memancing dan membaca SOAP Fault, lalu membandingkan pendekatan SOAP dengan REST secara langsung.</p>
+  <h1>Demo Singkat SOAP: Eksplorasi Request/Response &amp; WSDL Siap Pakai</h1>
+  <p class="subtitle">Bukan membangun SOAP service dari nol — cukup mengeksplorasi WSDL yang sudah ada dan merasakan langsung bentuk request/response SOAP, sebagai pelengkap konsep yang dibahas di kuliah sesi 3.</p>
   <div class="meta-row">
     <div class="meta-item">Durasi <b>100 menit</b></div>
     <div class="meta-item">Format <b>Praktikum Mandiri/Berpasangan</b></div>
-    <div class="meta-item">Prasyarat <b>Lab 01 — Docker, Postman/Insomnia, dan akun cloud sudah siap</b></div>
+    <div class="meta-item">Terkait <b>Kuliah Sesi 03 — SOA &amp; SOAP</b></div>
   </div>
 </div>
 
 <section>
   <div class="wrap">
+    <div class="link-note"><b>Kaitan dengan kuliah:</b> Sesi 03 kuliah membahas anatomi SOAP (envelope, header, body) dan WSDL sebagai contract-first secara konseptual. Lab ini memberi pengalaman langsung membaca WSDL nyata dan mengirim request SOAP — cukup untuk membentuk intuisi, tanpa perlu membangun service SOAP sendiri.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
     <div class="section-label">Tujuan Pembelajaran</div>
     <ul class="obj-list">
-      <li><span class="obj-num">01</span><span>Mahasiswa mampu menjelaskan struktur SOAP Envelope (Header, Body, Fault) dan peran masing-masing elemen.</span></li>
-      <li><span class="obj-num">02</span><span>Mahasiswa mampu membaca file WSDL dan mengidentifikasi operasi, tipe data input/output, serta endpoint URL layanan.</span></li>
-      <li><span class="obj-num">03</span><span>Mahasiswa mampu mengirim SOAP request secara manual lewat Postman/Insomnia dan menganalisis response yang diterima.</span></li>
-      <li><span class="obj-num">04</span><span>Mahasiswa mampu memancing dan menganalisis struktur SOAP Fault dari berbagai jenis kesalahan request.</span></li>
-      <li><span class="obj-num">05</span><span>Mahasiswa mampu membandingkan pendekatan SOAP dengan REST dan menjelaskan konteks penggunaan masing-masing berdasarkan pengamatan langsung.</span></li>
+      <li><span class="obj-num">01</span><span>Mahasiswa mampu membaca dokumen WSDL milik layanan SOAP publik dan mengidentifikasi operasi yang tersedia.</span></li>
+      <li><span class="obj-num">02</span><span>Mahasiswa mampu menyusun dan mengirim SOAP request menggunakan Postman.</span></li>
+      <li><span class="obj-num">03</span><span>Mahasiswa mampu membaca struktur SOAP response dan menemukan data hasil di dalamnya.</span></li>
+      <li><span class="obj-num">04</span><span>Mahasiswa mampu membandingkan pengalaman memakai SOAP dengan REST secara langsung, bukan cuma secara teori.</span></li>
     </ul>
   </div>
 </section>
@@ -135,200 +136,59 @@
     <h2>Tools Praktikum</h2>
     <div class="tool-grid">
       <div class="tool-card">
-        <div class="k">Postman / Insomnia <span class="badge">wajib</span></div>
-        <div class="d">Dipakai untuk mengirim raw SOAP request berformat XML dan request REST ke endpoint publik.</div>
+        <div class="k">Postman <span class="badge">wajib</span></div>
+        <div class="d">Dipakai untuk mengirim SOAP request sebagai raw XML lewat HTTP POST — tidak perlu tools khusus SOAP.</div>
       </div>
       <div class="tool-card">
-        <div class="k">Browser Web <span class="badge">wajib</span></div>
-        <div class="d">Untuk membuka dan memeriksa file WSDL langsung dari URL layanan publik.</div>
+        <div class="k">Browser <span class="badge">wajib</span></div>
+        <div class="d">Untuk membuka dan membaca dokumen WSDL layanan demo langsung dari URL-nya.</div>
       </div>
-      <div class="tool-card">
-        <div class="k">Editor Kode <span class="badge">direkomendasikan</span></div>
-        <div class="d">VS Code dengan ekstensi XML memudahkan membaca dan memformat dokumen WSDL maupun envelope.</div>
-      </div>
-      <div class="tool-card">
-        <div class="k">Koneksi Internet <span class="badge">wajib</span></div>
-        <div class="d">Lab ini menggunakan layanan SOAP dan REST publik — tidak ada server yang perlu dijalankan secara lokal.</div>
-      </div>
+    </div>
+    <div class="fallback-note" style="margin-top:14px;">
+      <b>Catatan Ketersediaan Layanan Demo</b>
+      Lab ini memakai layanan SOAP publik gratis (Number Conversion Service milik DataAccess) sebagai contoh. Layanan publik semacam ini kadang tidak stabil — jika tidak bisa diakses, dosen akan menyediakan WSDL alternatif atau file WSDL cadangan sebelum sesi dimulai.
     </div>
   </div>
 </section>
 
 <section>
   <div class="wrap">
-    <div class="section-label">Konsep Singkat</div>
-    <h2>Anatomi SOAP</h2>
-    <p>SOAP (Simple Object Access Protocol) adalah protokol berbasis XML untuk bertukar informasi antar sistem. Setiap pesan SOAP dibungkus dalam struktur <b>Envelope</b> yang terdiri dari tiga bagian:</p>
-    <ul>
-      <li><b>Header</b> (opsional) — metadata seperti autentikasi, versi, atau instruksi routing.</li>
-      <li><b>Body</b> (wajib) — isi pesan: nama operasi yang dipanggil beserta parameternya, atau hasil response.</li>
-      <li><b>Fault</b> (di dalam Body, jika gagal) — kode dan pesan error yang dikembalikan server.</li>
-    </ul>
-    <p>Kontrak layanan SOAP didefinisikan dalam file <b>WSDL</b> (Web Services Description Language) — dokumen XML yang mendeklarasikan operasi apa saja yang tersedia, tipe data yang diterima/dikembalikan, dan URL endpoint yang harus dituju.</p>
-    <div class="info-box"><b>Konteks historis:</b> SOAP populer di era 2000-an untuk integrasi sistem enterprise (perbankan, pemerintah, ERP). Sebagian besar sistem baru kini memakai REST atau GraphQL, tetapi memahami SOAP tetap relevan karena banyak layanan lama masih aktif dan perlu diintegrasikan.</div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <div class="section-label">Langkah Praktik — Bagian A: Request &amp; Response Normal</div>
-    <h2>Eksplorasi SOAP Endpoint Publik</h2>
+    <div class="section-label">Langkah Praktik</div>
+    <h2>Eksplorasi WSDL &amp; Kirim Request</h2>
     <div class="steps">
       <div class="step">
         <div class="step-num">01</div>
         <div class="step-body">
-          <h3>Buka dan Baca File WSDL</h3>
-          <p>Buka URL WSDL berikut di browser. Ini adalah layanan kalkulator SOAP publik yang disediakan untuk keperluan belajar:</p>
-          <div class="code-block"><span class="cmt"># buka di browser untuk melihat kontrak layanan</span>
-<span class="cmd">https://www.dneonline.com/calculator.asmx?WSDL</span></div>
-          <p style="margin-top:10px;">Identifikasi elemen-elemen berikut di dalam file WSDL:</p>
-          <ul style="font-size:14px;">
-            <li>Tag <code>&lt;wsdl:operation&gt;</code> — nama operasi yang tersedia (Add, Subtract, Multiply, Divide)</li>
-            <li>Tag <code>&lt;wsdl:input&gt;</code> dan <code>&lt;wsdl:output&gt;</code> — nama message untuk setiap operasi</li>
-            <li>Tag <code>&lt;soap:address location="..."&gt;</code> — URL endpoint yang akan dituju saat mengirim request</li>
-          </ul>
+          <h3>Buka Dokumen WSDL</h3>
+          <p>Akses WSDL Number Conversion Service lewat browser: <code>https://www.dataaccess.com/webservicesserver/NumberConversion.wso?WSDL</code>. Cari bagian <code>&lt;portType&gt;</code> dan <code>&lt;message&gt;</code> — identifikasi nama operasi dan parameter yang dibutuhkan.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-num">02</div>
         <div class="step-body">
-          <h3>Susun dan Kirim SOAP Request</h3>
-          <p>Buat request baru dengan konfigurasi berikut:</p>
-          <ul style="font-size:14px; margin-bottom:10px;">
-            <li>Method: <b>POST</b></li>
-            <li>URL: <code>https://www.dneonline.com/calculator.asmx</code></li>
-            <li>Header: <code>Content-Type: text/xml; charset=utf-8</code></li>
-            <li>Header: <code>SOAPAction: "http://tempuri.org/Add"</code></li>
-          </ul>
-          <p>Isi body (raw/XML) dengan envelope berikut — operasi penjumlahan 7 + 3:</p>
-          <div class="code-block"><span class="tag-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
-<span class="tag-xml">&lt;soap:Envelope</span>
-  xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
-  xmlns:tns="http://tempuri.org/"<span class="tag-xml">&gt;</span>
-  <span class="tag-xml">&lt;soap:Body&gt;</span>
-    <span class="tag-xml">&lt;tns:Add&gt;</span>
-      <span class="tag-xml">&lt;tns:intA&gt;</span><span class="val">7</span><span class="tag-xml">&lt;/tns:intA&gt;</span>
-      <span class="tag-xml">&lt;tns:intB&gt;</span><span class="val">3</span><span class="tag-xml">&lt;/tns:intB&gt;</span>
-    <span class="tag-xml">&lt;/tns:Add&gt;</span>
-  <span class="tag-xml">&lt;/soap:Body&gt;</span>
-<span class="tag-xml">&lt;/soap:Envelope&gt;</span></div>
-          <p style="margin-top:10px;">Kirim request dan verifikasi hasilnya — hasil penjumlahan muncul di dalam tag <code>&lt;AddResult&gt;</code>.</p>
+          <h3>Susun SOAP Request di Postman</h3>
+          <p>Buat request baru: method <code>POST</code>, header <code>Content-Type: text/xml; charset=utf-8</code>, lalu isi body (raw, XML) dengan envelope SOAP berikut:</p>
+          <div class="code-block"><span class="tg">&lt;soap:Envelope xmlns:soap=</span><span class="st">"http://schemas.xmlsoap.org/soap/envelope/"</span><span class="tg">&gt;</span>
+  <span class="tg">&lt;soap:Body&gt;</span>
+    <span class="tg">&lt;NumberToWords xmlns=</span><span class="st">"http://www.dataaccess.com/webservicesserver/"</span><span class="tg">&gt;</span>
+      <span class="tg">&lt;ubiNum&gt;</span><span class="st">500</span><span class="tg">&lt;/ubiNum&gt;</span>
+    <span class="tg">&lt;/NumberToWords&gt;</span>
+  <span class="tg">&lt;/soap:Body&gt;</span>
+<span class="tg">&lt;/soap:Envelope&gt;</span></div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">03</div>
         <div class="step-body">
-          <h3>Coba Tiga Operasi Lain (Subtract, Multiply, Divide)</h3>
-          <p>Ulangi langkah 02 untuk tiga operasi sisanya. Sesuaikan nilai <code>SOAPAction</code> dan nama tag operasi di dalam Body:</p>
-          <div class="code-block"><span class="cmt"># contoh untuk Multiply — kalikan 6 × 4</span>
-<span class="cmt"># Header SOAPAction: "http://tempuri.org/Multiply"</span>
-<span class="tag-xml">&lt;tns:Multiply&gt;</span>
-  <span class="tag-xml">&lt;tns:intA&gt;</span><span class="val">6</span><span class="tag-xml">&lt;/tns:intA&gt;</span>
-  <span class="tag-xml">&lt;tns:intB&gt;</span><span class="val">4</span><span class="tag-xml">&lt;/tns:intB&gt;</span>
-<span class="tag-xml">&lt;/tns:Multiply&gt;</span></div>
+          <h3>Kirim &amp; Periksa Response</h3>
+          <p>Klik Send, lalu amati struktur XML response yang kembali. Temukan bagian <code>&lt;soap:Body&gt;</code> dan cari nilai hasil konversinya (misalnya angka 500 akan diubah menjadi teks "five hundred").</p>
         </div>
       </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <div class="section-label">Langkah Praktik — Bagian B: Simulasi SOAP Fault</div>
-    <h2>Memancing dan Membaca Error</h2>
-    <p>SOAP Fault adalah mekanisme resmi untuk melaporkan kegagalan — berbeda dengan REST yang mengandalkan HTTP status code. Struktur Fault selalu ada di dalam <code>&lt;soap:Body&gt;</code> dan memiliki empat elemen standar: <code>faultcode</code>, <code>faultstring</code>, <code>faultactor</code>, dan <code>detail</code>.</p>
-    <div class="steps">
       <div class="step">
         <div class="step-num">04</div>
         <div class="step-body">
-          <h3>Kirim Request dengan Tipe Data Salah</h3>
-          <p>Ganti nilai <code>intA</code> dengan string teks, lalu kirim request:</p>
-          <div class="code-block"><span class="tag-xml">&lt;tns:Add&gt;</span>
-  <span class="tag-xml">&lt;tns:intA&gt;</span><span class="err">halo</span><span class="tag-xml">&lt;/tns:intA&gt;</span>
-  <span class="tag-xml">&lt;tns:intB&gt;</span><span class="val">3</span><span class="tag-xml">&lt;/tns:intB&gt;</span>
-<span class="tag-xml">&lt;/tns:Add&gt;</span></div>
-          <p style="margin-top:10px;">Amati response — apakah server mengembalikan SOAP Fault atau tetap memberikan hasil? Catat nilai <code>faultcode</code> dan <code>faultstring</code> yang diterima.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">05</div>
-        <div class="step-body">
-          <h3>Kirim Request dengan Tag Salah (Typo pada Operasi)</h3>
-          <p>Ganti nama tag operasi dengan nama yang tidak ada di WSDL:</p>
-          <div class="code-block"><span class="cmt"># nama operasi ini tidak terdaftar di WSDL</span>
-<span class="tag-xml">&lt;tns:</span><span class="err">Tambah</span><span class="tag-xml">&gt;</span>
-  <span class="tag-xml">&lt;tns:intA&gt;</span><span class="val">7</span><span class="tag-xml">&lt;/tns:intA&gt;</span>
-  <span class="tag-xml">&lt;tns:intB&gt;</span><span class="val">3</span><span class="tag-xml">&lt;/tns:intB&gt;</span>
-<span class="tag-xml">&lt;/tns:</span><span class="err">Tambah</span><span class="tag-xml">&gt;</span></div>
-          <p style="margin-top:10px;">Bandingkan <code>faultcode</code> yang diterima dengan percobaan sebelumnya — apakah kodenya berbeda?</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">06</div>
-        <div class="step-body">
-          <h3>Kirim Request dengan Namespace Salah</h3>
-          <p>Ubah namespace <code>tns</code> ke URL yang keliru, lalu kirim:</p>
-          <div class="code-block"><span class="tag-xml">&lt;soap:Envelope</span>
-  xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"
-  xmlns:tns="<span class="err">http://wrong-namespace.example/</span>"<span class="tag-xml">&gt;</span>
-  <span class="tag-xml">&lt;soap:Body&gt;</span>
-    <span class="tag-xml">&lt;tns:Add&gt;</span>
-      <span class="tag-xml">&lt;tns:intA&gt;</span><span class="val">7</span><span class="tag-xml">&lt;/tns:intA&gt;</span>
-      <span class="tag-xml">&lt;tns:intB&gt;</span><span class="val">3</span><span class="tag-xml">&lt;/tns:intB&gt;</span>
-    <span class="tag-xml">&lt;/tns:Add&gt;</span>
-  <span class="tag-xml">&lt;/soap:Body&gt;</span>
-<span class="tag-xml">&lt;/soap:Envelope&gt;</span></div>
-          <p style="margin-top:10px;">Catat perbedaan perilaku server — apakah server menolak, mengabaikan, atau memberikan hasil yang tidak terduga?</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">07</div>
-        <div class="step-body">
-          <h3>Dokumentasikan Pola Fault yang Ditemukan</h3>
-          <p>Dari ketiga percobaan di atas, isi tabel berikut di catatan masing-masing (bisa di Markdown, Notion, atau kertas):</p>
-          <ul style="font-size:14px;">
-            <li>Jenis kesalahan yang dibuat</li>
-            <li>HTTP status code yang dikembalikan (200? 500?)</li>
-            <li>Nilai <code>faultcode</code> dan <code>faultstring</code></li>
-            <li>Apakah error terdeteksi di level HTTP atau di dalam XML body?</li>
-          </ul>
-          <p style="margin-top:4px; font-size:13.5px; color:var(--ink-soft);">Observasi terakhir penting: SOAP sering mengembalikan HTTP 200 meskipun operasinya gagal — error "disembunyikan" di dalam XML. Ini berbeda dengan REST yang memakai HTTP 4xx/5xx untuk menandai kegagalan.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section>
-  <div class="wrap">
-    <div class="section-label">Langkah Praktik — Bagian C: Perbandingan SOAP vs REST</div>
-    <h2>Operasi yang Sama, Protokol Berbeda</h2>
-    <p>Untuk memperkuat pemahaman, lakukan operasi yang setara menggunakan REST API publik, lalu bandingkan pengalamannya secara langsung.</p>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">08</div>
-        <div class="step-body">
-          <h3>Kirim Request REST yang Setara</h3>
-          <p>Gunakan API matematika publik berikut untuk operasi penjumlahan yang sama (7 + 3):</p>
-          <div class="code-block"><span class="cmt"># GET request — tidak perlu body, tidak perlu header khusus</span>
-<span class="cmd">GET https://api.mathjs.org/v4/?expr=7%2B3</span></div>
-          <p style="margin-top:10px;">Bandingkan apa yang diperlukan: header, body, format data, dan panjang request dibanding SOAP untuk operasi yang sama persis.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-num">09</div>
-        <div class="step-body">
-          <h3>Isi Tabel Perbandingan</h3>
-          <p>Berdasarkan pengamatan langsung dari seluruh praktikum hari ini, lengkapi tabel berikut di catatan masing-masing. Isi berdasarkan yang <b>benar-benar dialami</b>, bukan definisi dari buku:</p>
-          <table class="compare-table" style="margin-top:10px;">
-            <tr><th>Aspek</th><th>SOAP (yang baru dicoba)</th><th>REST (yang baru dicoba)</th></tr>
-            <tr><td>Format pesan</td><td>XML dengan struktur Envelope wajib</td><td><i>isi hasil observasi Anda</i></td></tr>
-            <tr><td>Header yang dibutuhkan</td><td>Content-Type + SOAPAction</td><td><i>isi hasil observasi Anda</i></td></tr>
-            <tr><td>Panjang request (estimasi baris)</td><td><i>hitung dari contoh tadi</i></td><td><i>hitung dari contoh tadi</i></td></tr>
-            <tr><td>Cara menandai error</td><td>SOAP Fault di dalam Body (bisa HTTP 200)</td><td><i>isi hasil observasi Anda</i></td></tr>
-            <tr><td>Kontrak/dokumentasi operasi</td><td>WSDL — formal dan lengkap</td><td><i>isi hasil observasi Anda</i></td></tr>
-            <tr><td>Kemudahan dibaca manusia</td><td><i>tulis pendapat Anda</i></td><td><i>tulis pendapat Anda</i></td></tr>
-          </table>
+          <h3>Refleksi: Bandingkan dengan REST/JSON</h3>
+          <p>Bandingkan pengalaman ini dengan REST API berbasis JSON yang sudah biasa Anda pakai di mata kuliah Backend Programming. Perhatikan: ukuran payload XML vs JSON untuk data yang sama, dan seberapa mudah membaca strukturnya sekilas.</p>
         </div>
       </div>
     </div>
@@ -339,11 +199,10 @@
   <div class="wrap">
     <div class="section-label">Checklist Kesiapan</div>
     <ul class="checklist">
-      <li>File WSDL kalkulator berhasil dibuka dan empat operasi berhasil diidentifikasi</li>
-      <li>Request SOAP untuk keempat operasi (Add, Subtract, Multiply, Divide) berhasil dikirim dan hasilnya benar</li>
-      <li>Tiga jenis SOAP Fault berhasil dipancing dan struktur <code>faultcode</code>/<code>faultstring</code>-nya dicatat</li>
-      <li>Perbedaan pelaporan error SOAP (HTTP 200 + Fault di body) vs REST (HTTP 4xx/5xx) mampu dijelaskan</li>
-      <li>Request REST yang setara berhasil dikirim dan tabel perbandingan sudah diisi berdasarkan pengamatan langsung</li>
+      <li>Berhasil membuka dan membaca dokumen WSDL layanan demo</li>
+      <li>Berhasil mengirim SOAP request lewat Postman dan mendapat response 200</li>
+      <li>Berhasil menemukan nilai hasil di dalam SOAP response</li>
+      <li>Sudah menuliskan minimal 3 poin perbandingan SOAP/XML vs REST/JSON dari pengalaman langsung</li>
     </ul>
   </div>
 </section>
@@ -352,8 +211,8 @@
   <div class="wrap">
     <div class="section-label">Tugas &amp; Latihan</div>
     <div class="task-box">
-      <div class="lbl">Laporan Singkat</div>
-      <p style="margin-bottom:0;">Buat dokumen singkat (1–2 halaman atau satu file Markdown) yang berisi: (1) screenshot request dan response untuk keempat operasi kalkulator, (2) tabel SOAP Fault yang berhasil dipancing beserta analisis pola error-nya, dan (3) tabel perbandingan SOAP vs REST yang sudah diisi berdasarkan pengamatan langsung — bukan dari buku atau AI. Kumpulkan sebelum lab 03 dimulai.</p>
+      <div class="lbl">Latihan Mandiri</div>
+      <p style="margin-bottom:0;">Ambil screenshot SOAP request dan response yang berhasil dikirim. Tuliskan refleksi singkat (3-5 kalimat) yang membandingkan pengalaman memakai SOAP di lab ini dengan OpenAPI di lab 03 — mana yang terasa lebih ringkas, dan menurut Anda kapan SOAP tetap menjadi pilihan yang masuk akal. Kumpulkan sebelum lab 04.</p>
     </div>
   </div>
 </section>
@@ -362,11 +221,9 @@
   <div class="wrap">
     <div class="section-label">Referensi Sesi Ini</div>
     <div class="ref-mini">
-      <div><b>W3C SOAP 1.1 Specification</b> — w3.org/TR/soap, bagian "SOAP Message Structure" dan "SOAP Fault"</div>
-      <div><b>W3C WSDL 1.1 Note</b> — w3.org/TR/wsdl, bagian "2. WSDL Document Structure"</div>
-      <div><b>Postman Docs — SOAP Requests</b> — learning.postman.com, bagian "Sending SOAP requests"</div>
-      <div><b>dneonline.com Calculator WSDL</b> — layanan publik yang dipakai pada lab ini (dneonline.com/calculator.asmx)</div>
-      <div><b>api.mathjs.org</b> — REST API kalkulator publik yang dipakai untuk bagian perbandingan</div>
+      <div><b>Number Conversion Service (WSDL)</b> — dataaccess.com/webservicesserver</div>
+      <div><b>Postman Learning Center</b> — learning.postman.com, bagian "Sending SOAP Requests"</div>
+      <div><b>Kuliah Sesi 03</b> — SOA &amp; SOAP: Sejarah, WSDL sebagai Contract-First (materi terkait)</div>
     </div>
   </div>
 </section>
