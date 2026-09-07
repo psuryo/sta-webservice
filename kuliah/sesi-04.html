@@ -193,11 +193,51 @@
 
 <section>
   <div class="wrap">
+    <div class="section-label">Contoh Nyata — Transisi Level 2 ke Level 3</div>
+    <h2>Bagaimana PayPal API Menerapkannya</h2>
+    <p>PayPal API adalah salah satu API produksi nyata yang benar-benar menerapkan HATEOAS, terutama karena domainnya (transaksi pembayaran) memang punya banyak state transition — cocok sekali diperagakan sebagai contoh transisi Level 2 ke Level 3.</p>
+
+    <div class="anatomy-item" style="border:1px solid var(--border); border-radius:8px; padding:16px 18px; margin-bottom:14px; display:block;">
+      <div class="anatomy-tag" style="width:auto; color:var(--ink-soft); margin-bottom:8px;">SEBELUM — Level 2 (HTTP Verbs saja)</div>
+      <div class="code-block"><span class="key">GET /orders/8AB123456</span>
+
+<span class="key">{</span>
+  <span class="key">"id"</span>: <span class="val">"8AB123456"</span>,
+  <span class="key">"status"</span>: <span class="val">"CREATED"</span>,
+  <span class="key">"amount"</span>: <span class="val">"150000"</span>
+<span class="key">}</span></div>
+      <p style="font-size:13.5px; color:var(--ink-soft); margin-bottom:0;">Klien tahu status order "CREATED", tapi harus membaca dokumentasi terpisah untuk tahu langkah selanjutnya: endpoint mana yang dipanggil untuk approval? Bagaimana format URL-nya? Method apa yang dipakai?</p>
+    </div>
+
+    <div class="anatomy-item" style="border:1px solid var(--border); border-radius:8px; padding:16px 18px; display:block;">
+      <div class="anatomy-tag" style="width:auto; color:var(--green); margin-bottom:8px;">SESUDAH — Level 3 (HATEOAS, gaya PayPal)</div>
+      <div class="code-block"><span class="key">GET /orders/8AB123456</span>
+
+<span class="key">{</span>
+  <span class="key">"id"</span>: <span class="val">"8AB123456"</span>,
+  <span class="key">"status"</span>: <span class="val">"CREATED"</span>,
+  <span class="key">"amount"</span>: <span class="val">"150000"</span>,
+  <span class="key">"links"</span>: [
+    <span class="key">{</span> <span class="key">"rel"</span>: <span class="val">"self"</span>,    <span class="key">"href"</span>: <span class="val">"/orders/8AB123456"</span>,        <span class="key">"method"</span>: <span class="val">"GET"</span>  <span class="key">}</span>,
+    <span class="key">{</span> <span class="key">"rel"</span>: <span class="val">"approve"</span>, <span class="key">"href"</span>: <span class="val">"/orders/8AB123456/approve"</span>, <span class="key">"method"</span>: <span class="val">"POST"</span> <span class="key">}</span>,
+    <span class="key">{</span> <span class="key">"rel"</span>: <span class="val">"capture"</span>, <span class="key">"href"</span>: <span class="val">"/orders/8AB123456/capture"</span>, <span class="key">"method"</span>: <span class="val">"POST"</span> <span class="key">}</span>
+  ]
+<span class="key">}</span></div>
+      <p style="font-size:13.5px; color:var(--ink-soft); margin-bottom:0;">Sekarang klien langsung tahu dari response itu sendiri: order berstatus "CREATED" bisa di-<code>approve</code> atau langsung di-<code>capture</code>, lengkap dengan method HTTP yang harus dipakai — tanpa perlu membuka dokumentasi terpisah.</p>
+    </div>
+
+    <p style="margin-top:14px;">Field <code>rel</code> di PayPal berfungsi sebagai ID yang menjelaskan makna link secara jelas, dan <code>href</code> berisi URL lengkap tujuan pemanggilan — pola yang sama persis dengan contoh <code>_links</code> yang dibahas sebelumnya, hanya beda penamaan field.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
     <div class="section-label">Rangkuman</div>
     <ul>
       <li>Richardson Maturity Model membagi kematangan REST menjadi 4 level: dari satu endpoint untuk segalanya (Level 0) hingga API yang menuntun dirinya sendiri lewat hypermedia (Level 3).</li>
       <li>Sebagian besar API di industri, termasuk yang pernah dibuat di Backend Programming, kemungkinan besar berhenti di Level 2 — dan itu wajar, bukan berarti salah.</li>
       <li>HATEOAS (Level 3) mengurangi coupling antara klien dan server dengan menyertakan link navigasi di dalam response.</li>
+      <li>PayPal API adalah contoh nyata transisi Level 2 ke Level 3 — domain pembayaran dengan banyak state transition membuat HATEOAS benar-benar bermanfaat, bukan sekadar formalitas.</li>
       <li>Memilih level RMM yang tepat adalah soal trade-off kompleksitas vs fleksibilitas, bukan soal "semakin tinggi semakin baik" secara mutlak.</li>
     </ul>
   </div>
@@ -208,7 +248,7 @@
     <div class="section-label">Tugas &amp; Latihan</div>
     <div class="task-box">
       <div class="lbl">Latihan Mandiri</div>
-      <p style="margin-bottom:0;">Pilih satu endpoint dari API yang pernah Anda buat (atau API demo mana pun yang familiar). Tuliskan: (1) level RMM endpoint tersebut saat ini beserta alasannya, dan (2) contoh response JSON yang sudah direvisi menambahkan minimal 2 link <code>_links</code> untuk menaikkannya ke Level 3. Dikumpulkan sebelum sesi 05.</p>
+      <p style="margin-bottom:0;">Pilih satu endpoint dari API yang pernah Anda buat (atau API demo mana pun yang familiar). Tuliskan: (1) level RMM endpoint tersebut saat ini beserta alasannya, dan (2) contoh response JSON yang sudah direvisi menambahkan minimal 2 link (boleh format <code>_links</code> atau <code>links</code> seperti gaya PayPal) untuk menaikkannya ke Level 3. Dikumpulkan sebelum sesi 05.</p>
     </div>
   </div>
 </section>
@@ -220,6 +260,7 @@
       <div><b>RESTful Web APIs</b> — Leonard Richardson &amp; Sam Ruby, Bab 4: The Maturity Heuristic</div>
       <div><b>Architectural Styles and the Design of Network-based Software Architectures</b> — Roy T. Fielding, Bab 5 (bagian hypermedia constraint)</div>
       <div><b>Justice Richardson Maturity Model</b> — martinfowler.com, artikel "Richardson Maturity Model"</div>
+      <div><b>PayPal Developer Docs — API Responses</b> — developer.paypal.com/api/rest/responses (bagian HATEOAS Links)</div>
     </div>
   </div>
 </section>
