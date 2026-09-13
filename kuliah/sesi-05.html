@@ -226,7 +226,7 @@
     <div class="section-label">Diskusi Kelas</div>
     <div class="discuss-box">
       <div class="lbl">Aktivitas: Audit Kode Sendiri</div>
-      <p style="margin-bottom:0;">Buka kembali resolver <code>Category.products</code> dari project lab 04 Anda. Diskusikan dengan kelompok: kalau aplikasi ini punya 5.000 kategori, berapa kali query database akan dijalankan saat klien meng-query semua kategori beserta produknya sekaligus? Apakah kode Anda saat ini rentan terhadap N+1 Problem?</p>
+      <p style="margin-bottom:0;">Buka kembali resolver relasi (yang menghubungkan tabel induk-anak, sejenis <code>Category.products</code>) dari project lab 04 Anda sendiri. Diskusikan dengan kelompok: kalau tabel induk pada project Anda punya 5.000 baris, berapa kali query database akan dijalankan saat klien meng-query semua data induk beserta relasinya sekaligus? Apakah kode Anda saat ini rentan terhadap N+1 Problem?</p>
     </div>
   </div>
 </section>
@@ -248,7 +248,7 @@
     <div class="section-label">Tugas &amp; Latihan</div>
     <div class="task-box">
       <div class="lbl">Latihan Mandiri</div>
-      <p style="margin-bottom:0;">Tambahkan <code>console.log</code> di resolver <code>Category.products</code> pada project lab 04/05 Anda untuk mencatat setiap kali resolver ini dipanggil. Jalankan query yang mengambil semua kategori beserta produknya, lalu hitung dan laporkan: berapa kali resolver tersebut benar-benar terpanggil? Apakah hasilnya sesuai prediksi N+1 Problem yang dibahas di kelas? Dikumpulkan sebelum sesi 06.</p>
+      <p style="margin-bottom:0;">Tambahkan variabel counter (misal <code>let resolverCallCount = 0;</code>) di resolver relasi pada project GraphQL Anda sendiri dari lab 04/05 — <b>bukan harus resolver <code>Category.products</code></b>, sesuaikan dengan nama tabel/relasi yang benar-benar ada di project kelompok Anda. Tambahkan increment counter setiap kali resolver tersebut dipanggil, lalu tampilkan nilainya (misalnya lewat <code>console.log</code> di terminal server, atau field tambahan sementara di response). Jalankan query yang mengambil seluruh data induk beserta relasinya sekaligus, lalu <b>ambil screenshot hasil counter tersebut</b>. Bandingkan dengan prediksi N+1 Problem: apakah jumlah pemanggilan resolvernya sesuai rumus <code>1 + N</code>? Dikumpulkan sebelum sesi 06.</p>
     </div>
   </div>
 </section>
