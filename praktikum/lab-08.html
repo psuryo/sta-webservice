@@ -51,7 +51,7 @@
 
   .tool-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
   .tool-card{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 18px;}
-  .tool-card .k{font-family:var(--mono); font-size:13px; font-weight:600; color:var(--ink); margin-bottom:6px; display:flex; align-items:center; gap:8px;}
+  .tool-card .k{font-family:var(--mono); font-size:13px; font-weight:600; color:var(--ink); margin-bottom:6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
   .tool-card .k .badge{font-family:var(--mono); font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:4px; background:var(--green-soft); color:var(--green);}
   .tool-card .d{font-size:13.5px; color:var(--ink-soft);}
 
@@ -59,6 +59,7 @@
   .step{display:flex; gap:16px; padding:18px 0; border-bottom:1px solid var(--border);}
   .step:last-child{border-bottom:none;}
   .step-num{font-family:var(--mono); font-size:14px; font-weight:700; color:var(--green); width:26px; flex-shrink:0; padding-top:2px;}
+  .step-body{min-width:0; flex:1;}
   .step-body h3{font-size:15.5px; font-weight:600; margin-bottom:6px;}
   .step-body p{font-size:14px; margin-bottom:8px;}
   .code-block{background:#14171C; color:#D8DCE6; font-family:var(--mono); font-size:12px; border-radius:8px; padding:14px 16px; overflow-x:auto; white-space:pre;}
@@ -113,8 +114,8 @@
 <div class="wrap session-head">
   <div class="crumb"><a href="../index.html">Beranda</a><span class="sep">/</span><a href="index.html">Praktikum</a><span class="sep">/</span><span>lab-08</span></div>
   <span class="tag">LAB 08</span>
-  <h1>API Gateway Sederhana (Docker Compose / Cloudflare Workers)</h1>
-  <p class="subtitle">Menyatukan service-service dalam sistem proyek kelompok Anda di balik satu pintu masuk, lengkap dengan routing, pembatasan laju request (rate limiting), dan pengecekan API key.</p>
+  <h1>API Gateway Sederhana (Node.js / Cloudflare Workers)</h1>
+  <p class="subtitle">Menyatukan service-service dalam sistem proyek kelompok Anda di balik satu pintu masuk, lengkap dengan routing, pembatasan laju request (rate limiting), dan pengecekan API key. Tanpa Docker: gateway ditulis dengan Node.js yang sudah Anda kenal dari Backend Programming.</p>
   <div class="meta-row">
     <div class="meta-item">Durasi <b>100 menit</b></div>
     <div class="meta-item">Format <b>Praktikum Berkelompok</b></div>
@@ -124,7 +125,7 @@
 
 <section>
   <div class="wrap">
-    <div class="link-note"><b>Kaitan dengan proyek:</b> Lab ini dikerjakan langsung di atas sistem proyek kelompok Anda (topik A–E), bukan contoh terpisah. Gateway yang Anda bangun di sini menjadi komponen wajib arsitektur proyek. Konsep API Gateway dibahas di kuliah sesi 09, tetapi lab ini boleh dimulai lebih dulu karena yang dikerjakan hanya konfigurasi dasar.</div>
+    <div class="link-note"><b>Kaitan dengan proyek:</b> Lab ini dikerjakan langsung di atas sistem proyek kelompok Anda (topik A–E), bukan contoh terpisah. Gateway yang Anda bangun menjadi komponen wajib arsitektur proyek. Konsep API Gateway dibahas di kuliah sesi 09, tetapi lab ini boleh dimulai lebih dulu karena yang dikerjakan hanya konfigurasi dasar. Karena gateway di sini berupa aplikasi Node.js biasa, ia bisa di-deploy ke Render seperti server GraphQL di lab 04.</div>
   </div>
 </section>
 
@@ -133,9 +134,9 @@
     <div class="section-label">Tujuan Pembelajaran</div>
     <ul class="obj-list">
       <li><span class="obj-num">01</span><span>Mahasiswa mampu menjelaskan peran API Gateway sebagai pintu masuk tunggal untuk beberapa service.</span></li>
-      <li><span class="obj-num">02</span><span>Mahasiswa mampu mengonfigurasi Nginx sebagai reverse proxy yang meneruskan request ke dua service berdasarkan path.</span></li>
+      <li><span class="obj-num">02</span><span>Mahasiswa mampu membangun gateway Node.js yang meneruskan (proxy) request ke dua service berdasarkan path.</span></li>
       <li><span class="obj-num">03</span><span>Mahasiswa mampu menerapkan rate limiting di gateway dan membuktikan efeknya.</span></li>
-      <li><span class="obj-num">04</span><span>Mahasiswa mampu menjalankan seluruh sistem (gateway + service) dengan satu perintah Docker Compose.</span></li>
+      <li><span class="obj-num">04</span><span>Mahasiswa mampu menerapkan pengecekan API key sederhana di gateway.</span></li>
     </ul>
   </div>
 </section>
@@ -147,15 +148,15 @@
     <div class="diagram">Klien (browser / Postman / aplikasi lain)
         │
         ▼
-   <span class="hl">GATEWAY</span>  :8080         ← satu-satunya alamat yang diketahui klien
-   ├─ routing      /service-a/*  →  service-a:3000
-   │               /service-b/*  →  service-b:3001
-   ├─ rate limit   (maks. request per detik per IP)
-   └─ cek API key  (opsional)
+   <span class="hl">GATEWAY</span> (Node.js)  :8080     ← satu-satunya alamat yang diketahui klien
+   ├─ rate limit   (maks. 20 request / 10 detik per IP)
+   ├─ cek API key  (opsional)
+   └─ routing      /service-a/*  →  localhost:3000
+                   /service-b/*  →  localhost:3001
         │
    ┌────┴─────┐
    ▼          ▼
-service-a   service-b        ← tidak dibuka langsung ke luar</div>
+service-a   service-b</div>
     <p>Klien tidak perlu tahu ada berapa service di belakang, atau di port berapa masing-masing berjalan. Perubahan di belakang gateway tidak memaksa klien ikut berubah.</p>
   </div>
 </section>
@@ -166,20 +167,28 @@ service-a   service-b        ← tidak dibuka langsung ke luar</div>
     <h2>Tools Praktikum</h2>
     <div class="tool-grid">
       <div class="tool-card">
-        <div class="k">Docker Desktop (dari lab 01) <span class="badge">wajib</span></div>
-        <div class="d">Menjalankan gateway dan service sebagai container dalam satu jaringan.</div>
+        <div class="k">Node.js + Express <span class="badge">wajib</span></div>
+        <div class="d">Sudah dipakai sejak Backend Programming dan lab 04. Gateway ini hanyalah satu aplikasi Express lagi.</div>
       </div>
       <div class="tool-card">
-        <div class="k">Nginx (image resmi) <span class="badge">wajib</span></div>
-        <div class="d">Berperan sebagai API Gateway. Tidak perlu diinstal terpisah, cukup memakai image <code>nginx:alpine</code>.</div>
+        <div class="k"><code>http-proxy-middleware</code> <span class="badge">wajib</span></div>
+        <div class="d">Library untuk meneruskan request ke service lain berdasarkan path.</div>
+      </div>
+      <div class="tool-card">
+        <div class="k"><code>express-rate-limit</code> <span class="badge">wajib</span></div>
+        <div class="d">Library untuk membatasi jumlah request per alamat IP dalam rentang waktu tertentu.</div>
       </div>
       <div class="tool-card">
         <div class="k">Dua service dari sistem kelompok <span class="badge">wajib</span></div>
-        <div class="d">Boleh memakai service dari lab 04-06 jika sistem proyek belum punya dua service. Masing-masing perlu punya <code>Dockerfile</code>.</div>
+        <div class="d">Boleh memakai service dari lab 04-06 jika sistem proyek belum punya dua service.</div>
+      </div>
+      <div class="tool-card">
+        <div class="k">Postman (dari lab 01) <span class="badge">wajib</span></div>
+        <div class="d">Untuk menguji routing dan header <code>X-API-Key</code>.</div>
       </div>
       <div class="tool-card">
         <div class="k">Cloudflare Workers (Opsi B) <span class="badge">alternatif</span></div>
-        <div class="d">Gateway di edge Cloudflare yang bisa diakses publik. Akun sudah dibuat di lab 01.</div>
+        <div class="d">Gateway di edge Cloudflare yang langsung bisa diakses publik. Akun sudah dibuat di lab 01.</div>
       </div>
     </div>
   </div>
@@ -188,117 +197,106 @@ service-a   service-b        ← tidak dibuka langsung ke luar</div>
 <section>
   <div class="wrap">
     <div class="section-label">Langkah Praktik — Opsi A (Wajib)</div>
-    <h2>Gateway Nginx dengan Docker Compose</h2>
+    <h2>Gateway dengan Node.js &amp; Express</h2>
     <div class="steps">
       <div class="step">
         <div class="step-num">01</div>
         <div class="step-body">
-          <h3>Siapkan Struktur Folder</h3>
+          <h3>Siapkan Struktur Folder &amp; Dependensi</h3>
           <div class="code-block">proyek-kelompok/
-├── docker-compose.yml
-├── nginx.conf
-├── service-a/        <span class="cmt"># kode + Dockerfile service pertama</span>
-└── service-b/        <span class="cmt"># kode + Dockerfile service kedua</span></div>
-          <p style="margin-top:8px;">Ganti nama <code>service-a</code> dan <code>service-b</code> dengan nama service sesuai topik kelompok Anda (misalnya <code>booking</code> dan <code>inventory</code>). Pastikan tiap service membaca port dari environment variable <code>PORT</code>.</p>
+├── gateway/          <span class="cmt"># project baru untuk gateway</span>
+├── service-a/        <span class="cmt"># service pertama (jalan di port 3000)</span>
+└── service-b/        <span class="cmt"># service kedua (jalan di port 3001)</span></div>
+          <p style="margin-top:8px;">Ganti <code>service-a</code> dan <code>service-b</code> dengan nama service sesuai topik kelompok Anda (misalnya <code>booking</code> dan <code>inventory</code>). Lalu di folder <code>gateway</code>:</p>
+          <div class="code-block">npm init -y
+npm install express http-proxy-middleware express-rate-limit</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">02</div>
         <div class="step-body">
-          <h3>Tulis <code>nginx.conf</code> (Routing + Rate Limiting)</h3>
-          <div class="code-block"><span class="key">events</span> {}
+          <h3>Tulis <code>gateway.js</code> (Rate Limiting + Routing)</h3>
+          <div class="code-block"><span class="key">const</span> express = require(<span class="val">'express'</span>);
+<span class="key">const</span> { createProxyMiddleware } = require(<span class="val">'http-proxy-middleware'</span>);
+<span class="key">const</span> { rateLimit } = require(<span class="val">'express-rate-limit'</span>);
 
-<span class="key">http</span> {
-  <span class="cmt"># zona rate limit: maks. 5 request/detik per alamat IP</span>
-  limit_req_zone $binary_remote_addr zone=api_limit:10m rate=5r/s;
-  limit_req_status 429;
+<span class="key">const</span> app = express();
+app.set(<span class="val">'trust proxy'</span>, 1); <span class="cmt">// diperlukan saat di-deploy di balik proxy (mis. Render)</span>
 
-  server {
-    listen 80;
+<span class="cmt">// rate limit: maks. 20 request per 10 detik per alamat IP</span>
+app.use(rateLimit({
+  windowMs: 10 * 1000,
+  limit: 20,
+  standardHeaders: <span class="key">true</span>,
+  legacyHeaders: <span class="key">false</span>,
+}));
 
-    location /service-a/ {
-      limit_req zone=api_limit burst=10 nodelay;
-      proxy_set_header Host $host;
-      proxy_set_header X-Real-IP $remote_addr;
-      proxy_pass http://service-a:3000/;
-    }
+<span class="cmt">// routing: /service-a/* diteruskan ke service-a</span>
+app.use(createProxyMiddleware({
+  pathFilter: <span class="val">'/service-a'</span>,
+  target: process.env.SERVICE_A_URL || <span class="val">'http://localhost:3000'</span>,
+  changeOrigin: <span class="key">true</span>,
+  pathRewrite: { <span class="val">'^/service-a'</span>: <span class="val">''</span> },
+}));
 
-    location /service-b/ {
-      limit_req zone=api_limit burst=10 nodelay;
-      proxy_set_header Host $host;
-      proxy_set_header X-Real-IP $remote_addr;
-      proxy_pass http://service-b:3001/;
-    }
-  }
-}</div>
-          <p style="margin-top:8px;"><b>Perhatikan:</b> tanda <code>/</code> di akhir <code>proxy_pass http://service-a:3000/;</code> membuat Nginx membuang prefix <code>/service-a/</code> sebelum meneruskan. Request ke <code>/service-a/products</code> sampai di service sebagai <code>/products</code>.</p>
+<span class="cmt">// routing: /service-b/* diteruskan ke service-b</span>
+app.use(createProxyMiddleware({
+  pathFilter: <span class="val">'/service-b'</span>,
+  target: process.env.SERVICE_B_URL || <span class="val">'http://localhost:3001'</span>,
+  changeOrigin: <span class="key">true</span>,
+  pathRewrite: { <span class="val">'^/service-b'</span>: <span class="val">''</span> },
+}));
+
+app.use((req, res) => res.status(404).json({ error: <span class="val">'Route tidak ditemukan'</span> }));
+
+app.listen(process.env.PORT || 8080, () => console.log(<span class="val">'Gateway berjalan'</span>));</div>
+          <p style="margin-top:8px;"><code>pathRewrite</code> membuang prefix <code>/service-a</code> sebelum meneruskan: request ke <code>/service-a/products</code> sampai di service sebagai <code>/products</code>. Contoh ini memakai <code>http-proxy-middleware</code> versi 3.x (yang ikut terpasang saat <code>npm install</code>).</p>
         </div>
       </div>
       <div class="step">
         <div class="step-num">03</div>
         <div class="step-body">
-          <h3>Tulis <code>docker-compose.yml</code></h3>
-          <div class="code-block"><span class="key">services</span>:
-  gateway:
-    image: nginx:alpine
-    ports:
-      - <span class="val">"8080:80"</span>
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - service-a
-      - service-b
-
-  service-a:
-    build: ./service-a
-    environment:
-      - PORT=3000
-      - DATABASE_URL=${DATABASE_URL}
-
-  service-b:
-    build: ./service-b
-    environment:
-      - PORT=3001
-      - DATABASE_URL=${DATABASE_URL}</div>
-          <p style="margin-top:8px;">Perhatikan bahwa hanya <code>gateway</code> yang membuka port ke luar (<code>8080</code>). Kedua service hanya bisa dijangkau lewat gateway. Nama service (<code>service-a</code>, <code>service-b</code>) otomatis menjadi hostname di dalam jaringan Compose. Simpan <code>DATABASE_URL</code> di file <code>.env</code> yang <b>tidak</b> di-commit ke GitHub.</p>
+          <h3>Jalankan Tiga Proses &amp; Uji Routing</h3>
+          <p>Buka tiga terminal: jalankan service-a di port 3000, service-b di port 3001 (sesuai cara masing-masing service mengatur port), lalu gateway:</p>
+          <div class="code-block">node gateway.js</div>
+          <p style="margin-top:8px;">Di Postman, kirim request ke <code>http://localhost:8080/service-a/...</code> dan <code>http://localhost:8080/service-b/...</code>. Kedua service kini diakses lewat <b>satu port</b>, tanpa klien perlu tahu port aslinya.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-num">04</div>
         <div class="step-body">
-          <h3>Jalankan &amp; Uji Routing</h3>
-          <div class="code-block">docker compose up --build
-
-<span class="cmt"># di terminal lain: kedua service diakses lewat SATU port</span>
-curl http://localhost:8080/service-a/
-curl http://localhost:8080/service-b/</div>
+          <h3>Buktikan Rate Limiting</h3>
+          <p>Buat file <code>test-rate-limit.js</code> (jalan di semua sistem operasi, memakai <code>fetch</code> bawaan Node.js 18+):</p>
+          <div class="code-block">(<span class="key">async</span> () => {
+  <span class="key">for</span> (<span class="key">let</span> i = 1; i &lt;= 30; i++) {
+    <span class="key">const</span> res = <span class="key">await</span> fetch(<span class="val">'http://localhost:8080/service-a/'</span>);
+    console.log(i, res.status);
+  }
+})();</div>
+          <p style="margin-top:8px;">Jalankan dengan <code>node test-rate-limit.js</code>. Hasil yang diharapkan: 20 request pertama berstatus <code>200</code> (atau status normal service Anda), lalu sisanya <code>429</code> (Too Many Requests). Ambil screenshot output ini sebagai bukti. Jika service Anda tidak punya route <code>/</code>, ganti URL ke endpoint yang valid.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-num">05</div>
         <div class="step-body">
-          <h3>Buktikan Rate Limiting</h3>
-          <p>Kirim banyak request beruntun dan perhatikan kode statusnya:</p>
-          <div class="code-block">for i in $(seq 1 30); do
-  curl -s -o /dev/null -w "%{http_code}\n" http://localhost:8080/service-a/
-done</div>
-          <p style="margin-top:8px;">Hasil yang diharapkan: sebagian besar awal berstatus <code>200</code>, lalu mulai muncul <code>429</code> (Too Many Requests) setelah batas terlampaui. Ambil screenshot output ini sebagai bukti.</p>
+          <h3>Tantangan Tambahan: Cek API Key di Gateway <span class="opt-label">OPSIONAL</span></h3>
+          <p>Terapkan konsep API key dari kuliah sesi 08: tolak request ke <code>/service-b</code> yang tidak membawa header <code>X-API-Key</code> yang benar. Tambahkan <b>sebelum</b> blok proxy <code>/service-b</code>:</p>
+          <div class="code-block"><span class="key">const</span> requireApiKey = (req, res, next) => {
+  <span class="key">if</span> (!process.env.API_KEY || req.get(<span class="val">'X-API-Key'</span>) !== process.env.API_KEY) {
+    <span class="key">return</span> res.status(401).json({ error: <span class="val">'Unauthorized'</span> });
+  }
+  next();
+};
+
+app.use(<span class="val">'/service-b'</span>, requireApiKey);</div>
+          <p style="margin-top:8px;">Jalankan gateway dengan environment variable <code>API_KEY</code> terisi, lalu uji di Postman dengan dan tanpa header tersebut (<code>200</code> vs <code>401</code>). Simpan nilai key di environment variable atau file <code>.env</code> yang tidak di-commit ke GitHub, bukan di kode.</p>
         </div>
       </div>
       <div class="step">
         <div class="step-num">06</div>
         <div class="step-body">
-          <h3>Tantangan Tambahan: Cek API Key di Gateway <span class="opt-label">OPSIONAL</span></h3>
-          <p>Terapkan konsep API key dari kuliah sesi 08: tolak request yang tidak membawa header <code>X-API-Key</code> yang benar. Tambahkan di dalam blok <code>http { }</code>, lalu di <code>location</code> yang ingin dilindungi:</p>
-          <div class="code-block"><span class="cmt"># di dalam http { }</span>
-map $http_x_api_key $api_key_valid {
-  default 0;
-  <span class="val">"kunci-latihan-kelas"</span> 1;
-}
-
-<span class="cmt"># di dalam location /service-b/ { }</span>
-if ($api_key_valid = 0) { return 401; }</div>
-          <p style="margin-top:8px;">Key yang ditulis langsung di konfigurasi ini hanya untuk latihan. Untuk sistem proyek, key harus dikelola sesuai praktik di sesi 08 (tidak di-commit, bisa dirotasi).</p>
+          <h3>Deploy Gateway ke Render <span class="opt-label">OPSIONAL</span></h3>
+          <p>Jika kedua service sudah di-deploy dan punya URL publik, gateway bisa ikut di-deploy seperti server GraphQL di lab 04: push folder <code>gateway</code> ke GitHub, buat "New Web Service" di Render, atur start command <code>node gateway.js</code>, dan isi environment variable <code>SERVICE_A_URL</code>, <code>SERVICE_B_URL</code>, serta <code>API_KEY</code>. Hasilnya adalah satu URL publik untuk seluruh sistem, yang akan sangat membantu kelompok penguji saat code freeze.</p>
         </div>
       </div>
     </div>
@@ -309,7 +307,7 @@ if ($api_key_valid = 0) { return 401; }</div>
   <div class="wrap">
     <div class="section-label">Langkah Praktik — Opsi B (Alternatif)</div>
     <h2>Gateway di Edge dengan Cloudflare Workers</h2>
-    <p>Berguna jika Anda ingin gateway yang langsung bisa diakses publik tanpa menjalankan Docker. Worker meneruskan request ke service yang sudah di-deploy (misalnya di Render atau Vercel) berdasarkan path.</p>
+    <p>Berguna jika Anda ingin gateway yang langsung bisa diakses publik tanpa menjalankan server sendiri. Worker meneruskan request ke service yang sudah di-deploy (misalnya di Render atau Vercel) berdasarkan path.</p>
     <div class="steps">
       <div class="step">
         <div class="step-num">A</div>
@@ -368,16 +366,20 @@ npx wrangler deploy</div>
     <div class="pitfall-box">
       <div class="lbl">Masalah yang Sering Muncul</div>
       <div class="pitfall-item">
-        <span class="err">502 Bad Gateway</span>
-        <p class="fix">Nginx tidak bisa menjangkau service di belakangnya. Periksa nama service di <code>proxy_pass</code> (harus sama dengan nama di <code>docker-compose.yml</code>), port-nya, dan apakah service benar-benar sudah berjalan (<code>docker compose logs service-a</code>).</p>
+        <span class="err">Error proxy / 504 Gateway Timeout</span>
+        <p class="fix">Gateway tidak bisa menjangkau service di belakangnya. Periksa apakah service benar-benar sedang berjalan, port-nya sama dengan yang tertulis di <code>target</code>, dan (saat di-deploy) nilai <code>SERVICE_A_URL</code>/<code>SERVICE_B_URL</code> sudah benar.</p>
       </div>
       <div class="pitfall-item">
-        <span class="err">404 dari service padahal route sudah benar</span>
-        <p class="fix">Biasanya soal tanda <code>/</code> di akhir <code>proxy_pass</code>. Tanpa garis miring, prefix <code>/service-a/</code> ikut diteruskan ke service, sehingga path-nya tidak dikenali.</p>
+        <span class="err">404 dari service padahal route gateway sudah benar</span>
+        <p class="fix">Biasanya <code>pathRewrite</code> terlewat, sehingga prefix <code>/service-a</code> ikut diteruskan dan service tidak mengenali path-nya.</p>
       </div>
       <div class="pitfall-item">
-        <span class="err">Rate limit tidak pernah terpicu</span>
-        <p class="fix">Pastikan request dikirim cukup cepat dan beruntun (gunakan loop pada langkah 05), serta nilai <code>burst</code> tidak terlalu besar dibanding jumlah request uji Anda.</p>
+        <span class="err">Request POST/PUT menggantung (tidak pernah selesai)</span>
+        <p class="fix">Jangan memasang <code>app.use(express.json())</code> <b>sebelum</b> middleware proxy. Body request akan terbaca habis di gateway sehingga tidak sampai ke service. Parsing body cukup dilakukan di service masing-masing.</p>
+      </div>
+      <div class="pitfall-item">
+        <span class="err">Rate limit tidak terpicu, atau semua pengguna terkena limit sekaligus setelah di-deploy</span>
+        <p class="fix">Untuk yang pertama, pastikan request dikirim cukup cepat dan beruntun (pakai skrip uji). Untuk yang kedua, pastikan <code>app.set('trust proxy', 1)</code> terpasang agar gateway membaca IP klien yang sebenarnya, bukan IP proxy milik platform hosting.</p>
       </div>
     </div>
   </div>
@@ -388,10 +390,10 @@ npx wrangler deploy</div>
     <div class="section-label">Checklist Kesiapan</div>
     <ul class="checklist">
       <li>Dua service sistem kelompok diakses lewat satu port gateway (<code>8080</code>), bukan port masing-masing</li>
-      <li>Kedua service tidak membuka port langsung ke luar di <code>docker-compose.yml</code></li>
-      <li>Rate limiting terbukti: output loop menampilkan status <code>429</code></li>
-      <li>Seluruh sistem berjalan dengan satu perintah <code>docker compose up --build</code></li>
-      <li>Secret (<code>DATABASE_URL</code>, API key) tidak ada di repository</li>
+      <li>Rate limiting terbukti: output skrip uji menampilkan status <code>429</code> setelah batas terlampaui</li>
+      <li>Gateway bisa dijalankan dengan <code>node gateway.js</code> dan URL service dibaca dari environment variable</li>
+      <li>Secret (API key, URL database) tidak ada di repository</li>
+      <li>(Opsional) Pengecekan API key bekerja: <code>401</code> tanpa header, <code>200</code> dengan header benar</li>
     </ul>
   </div>
 </section>
@@ -401,7 +403,7 @@ npx wrangler deploy</div>
     <div class="section-label">Tugas &amp; Latihan</div>
     <div class="task-box">
       <div class="lbl">Tugas Kelompok</div>
-      <p>Kumpulkan: (1) tautan repository berisi <code>nginx.conf</code> dan <code>docker-compose.yml</code>, (2) screenshot kedua service diakses lewat satu port, (3) screenshot output loop rate limiting yang menampilkan <code>200</code> lalu <code>429</code>, dan (4) diagram arsitektur sederhana sistem kelompok Anda dengan gateway di depannya.</p>
+      <p>Kumpulkan: (1) tautan repository berisi <code>gateway.js</code> dan <code>package.json</code>, (2) screenshot Postman yang menunjukkan kedua service diakses lewat satu port, (3) screenshot output skrip uji rate limiting yang menampilkan status normal lalu <code>429</code>, dan (4) diagram arsitektur sederhana sistem kelompok Anda dengan gateway di depannya.</p>
       <p style="margin-bottom:0;">Tambahkan refleksi singkat (3-4 kalimat): apa untungnya klien hanya tahu satu alamat, dan satu hal yang berisiko jika gateway ini mati. Dikumpulkan sebelum lab 09.</p>
     </div>
   </div>
@@ -411,8 +413,8 @@ npx wrangler deploy</div>
   <div class="wrap">
     <div class="section-label">Referensi Sesi Ini</div>
     <div class="ref-mini">
-      <div><b>Nginx Documentation</b> — nginx.org/en/docs, bagian <code>ngx_http_proxy_module</code> dan <code>ngx_http_limit_req_module</code></div>
-      <div><b>Docker Compose Documentation</b> — docs.docker.com/compose</div>
+      <div><b>http-proxy-middleware</b> — npmjs.com/package/http-proxy-middleware (opsi <code>pathFilter</code> dan <code>pathRewrite</code>)</div>
+      <div><b>express-rate-limit</b> — npmjs.com/package/express-rate-limit</div>
       <div><b>Cloudflare Workers Documentation</b> — developers.cloudflare.com/workers (Opsi B)</div>
       <div><b>Kuliah Sesi 08</b> — Keamanan Lanjutan: OAuth2, API Key Management, mTLS (dasar tantangan API key)</div>
     </div>
