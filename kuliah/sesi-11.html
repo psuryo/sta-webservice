@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesi 11 — Komunikasi Asinkron: Message Queue &amp; Event-Driven Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F6F5F1; --surface:#FFFFFF; --ink:#1A1D23; --ink-soft:#5B5F68; --border:#E1DED5;
+    --blue:#3457D5; --blue-soft:#EAEFFC; --green:#1F9D65; --green-soft:#E8F6EF;
+    --amber:#C97A0A; --amber-soft:#FBEEDD; --mono:'IBM Plex Mono', monospace; --sans:'IBM Plex Sans', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--ink); font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased;}
+  a{color:inherit;}
+  .wrap{max-width:820px; margin:0 auto; padding:0 24px;}
+
+  .topbar{position:sticky; top:0; z-index:20; background:rgba(246,245,241,0.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--border);}
+  .topbar .inner{max-width:820px; margin:0 auto; padding:0 24px; display:flex; align-items:center; justify-content:space-between; height:64px;}
+  .brand{font-family:var(--mono); font-weight:600; font-size:15px; display:flex; align-items:center; gap:8px;}
+  .brand .dot{width:8px; height:8px; border-radius:50%; background:var(--green); display:inline-block;}
+  .back{font-family:var(--mono); font-size:13px; text-decoration:none; color:var(--ink-soft); border:1px solid var(--border); padding:7px 14px; border-radius:20px;}
+  .back:hover{color:var(--ink); border-color:var(--ink);}
+
+  .session-head{padding:52px 0 32px;}
+  .crumb{font-family:var(--mono); font-size:12px; color:var(--ink-soft); margin-bottom:14px; display:flex; align-items:center; gap:8px;}
+  .crumb a{text-decoration:none; color:var(--ink-soft);}
+  .crumb a:hover{color:var(--ink);}
+  .crumb .sep{color:var(--border);}
+  .tag{font-family:var(--mono); font-size:10.5px; font-weight:700; padding:4px 10px; border-radius:5px; background:var(--blue-soft); color:var(--blue); letter-spacing:0.02em;}
+  h1{font-family:var(--mono); font-size:32px; line-height:1.2; letter-spacing:-0.02em; font-weight:700; margin:14px 0 12px;}
+  .subtitle{font-size:16px; color:var(--ink-soft); max-width:60ch;}
+  .meta-row{display:flex; gap:20px; margin-top:20px; flex-wrap:wrap;}
+  .meta-item{font-family:var(--mono); font-size:12px; color:var(--ink-soft);}
+  .meta-item b{color:var(--ink);}
+
+  section{padding:36px 0; border-top:1px solid var(--border);}
+  .section-label{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--blue); font-weight:600; margin-bottom:14px;}
+  h2{font-size:19px; font-weight:600; margin-bottom:14px;}
+  h3.sub{font-size:15.5px; font-weight:600; margin:26px 0 10px;}
+  p{font-size:15px; margin-bottom:14px; color:var(--ink);}
+  ul, ol{padding-left:20px; margin-bottom:14px;}
+  li{margin-bottom:9px; font-size:15px;}
+  code{font-family:var(--mono); font-size:13px; background:#EFEDE6; padding:1px 5px; border-radius:4px;}
+
+  .obj-list{list-style:none; padding:0; display:flex; flex-direction:column; gap:10px;}
+  .obj-list li{display:flex; gap:12px; align-items:flex-start; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin-bottom:0;}
+  .obj-num{font-family:var(--mono); font-size:12px; color:var(--blue); font-weight:700; flex-shrink:0; padding-top:1px;}
+
+  .link-note{background:var(--blue-soft); border:1px solid #C7D3F7; border-radius:8px; padding:14px 18px; font-size:13.5px; color:var(--ink);}
+  .link-note b{color:var(--blue);}
+
+  .wide-table-wrap{overflow-x:auto; margin-bottom:14px;}
+  .compare-table{width:100%; border-collapse:collapse; font-size:13.5px; background:var(--surface); border:1px solid var(--border); border-radius:8px; overflow:hidden; min-width:560px;}
+  .compare-table th, .compare-table td{padding:11px 14px; text-align:left; border-bottom:1px solid var(--border); vertical-align:top;}
+  .compare-table th{font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); background:#FAFAF7;}
+  .compare-table td:first-child{font-family:var(--mono); font-size:12px; font-weight:600; white-space:nowrap;}
+  .compare-table tr:last-child td{border-bottom:none;}
+
+  .resp-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px;}
+  .resp-card{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:16px 18px;}
+  .resp-card .k{font-family:var(--mono); font-size:13px; font-weight:600; margin-bottom:6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .resp-card .badge{font-family:var(--mono); font-size:9.5px; font-weight:700; padding:2px 7px; border-radius:4px; background:var(--green-soft); color:var(--green);}
+  .resp-card .d{font-size:13.5px; color:var(--ink-soft);}
+
+  .warn-box{background:var(--amber-soft); border:1px solid #EAD4AE; border-radius:8px; padding:18px 20px; margin-bottom:14px;}
+  .warn-box .lbl{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--amber); font-weight:700; margin-bottom:8px;}
+  .warn-box ul{margin-bottom:0;}
+  .warn-box li{font-size:14px; margin-bottom:6px;}
+  .warn-box p{font-size:14px; margin-bottom:0;}
+
+  .discuss-box{background:var(--amber-soft); border:1px solid #EAD4AE; border-radius:8px; padding:18px 20px;}
+  .discuss-box .lbl{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--amber); font-weight:700; margin-bottom:8px;}
+
+  .task-box{background:var(--green-soft); border:1px solid #BFE6D3; border-radius:8px; padding:18px 20px;}
+  .task-box .lbl{font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--green); font-weight:700; margin-bottom:8px;}
+
+  .ref-mini{display:flex; flex-direction:column; gap:8px;}
+  .ref-mini div{font-size:13.5px; color:var(--ink-soft); border-bottom:1px dashed var(--border); padding-bottom:8px;}
+  .ref-mini div:last-child{border-bottom:none;}
+  .ref-mini b{color:var(--ink);}
+
+  footer{padding:32px 0 48px; text-align:center; font-family:var(--mono); font-size:12px; color:var(--ink-soft); border-top:1px solid var(--border);}
+
+  @media (max-width:600px){
+    .resp-grid{grid-template-columns:1fr;}
+    h1{font-size:26px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="inner">
+    <div class="brand"><span class="dot"></span>web-service · panduan</div>
+    <a class="back" href="index.html">← Kembali ke daftar sesi</a>
+  </div>
+</div>
+
+<div class="wrap session-head">
+  <div class="crumb"><a href="../index.html">Beranda</a><span class="sep">/</span><a href="index.html">Kuliah</a><span class="sep">/</span><span>minggu-11</span></div>
+  <span class="tag">SESI 11</span>
+  <h1>Komunikasi Asinkron: Message Queue &amp; Event-Driven Architecture</h1>
+  <p class="subtitle">Sesi 10 menunjukkan bahwa panggilan sinkron antar service rapuh. Sesi ini membahas alternatifnya: service saling berkomunikasi lewat pesan dan event, tanpa harus saling menunggu.</p>
+  <div class="meta-row">
+    <div class="meta-item">Durasi <b>100 menit</b></div>
+    <div class="meta-item">Format <b>Kuliah Tatap Muka</b></div>
+    <div class="meta-item">Terkait <b>Sesi 10 — Microservices &amp; Proyek Kelompok</b></div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <div class="link-note"><b>Kaitan dengan praktikum dan proyek:</b> Di proyek kelompok, tidak semua interaksi antar service perlu dijawab seketika. Contoh implementasi di kelas memakai Cloudflare Queues dan webhook antar service di Render. Keputusan mana yang sinkron dan mana yang asinkron menjadi bagian rancangan arsitektur di laporan proyek.</div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-label">Tujuan Pembelajaran</div>
+    <ul class="obj-list">
+      <li><span class="obj-num">01</span><span>Mahasiswa mampu membedakan komunikasi sinkron dan asinkron serta memilih yang tepat untuk suatu kasus.</span></li>
+      <li><span class="obj-num">02</span><span>Mahasiswa mampu menjelaskan komponen message queue dan perbedaannya dengan publish/subscribe.</span></li>
+      <li><span class="obj-num">03</span><span>Mahasiswa mampu menjelaskan jaminan pengiriman pesan dan alasan consumer harus idempoten.</span></li>
+      <li><span class="obj-num">04</span><span>Mahasiswa mampu menjelaskan event-driven architecture, termasuk perbedaan event dan command.</span></li>
+      <li><span class="obj-num">05</span><span>Mahasiswa mampu merancang dan mengamankan webhook sebagai mekanisme notifikasi antar service.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-label">Materi — Dasar</div>
+    <h2>Sinkron vs Asinkron</h2>
+    <p>Pada komunikasi sinkron (REST, GraphQL, gRPC), pemanggil mengirim request lalu menunggu jawaban. Pada komunikasi asinkron, pemanggil menitipkan pesan dan melanjutkan pekerjaannya; pemrosesan terjadi belakangan oleh pihak lain.</p>
+    <div class="wide-table-wrap">
+      <table class="compare-table">
+        <tr><th>Aspek</th><th>Sinkron</th><th>Asinkron</th></tr>
+        <tr><td>Keterikatan waktu</td><td>Kedua pihak harus hidup bersamaan</td><td>Penerima boleh sedang mati, pesan menunggu di antrean</td></tr>
+        <tr><td>Respons</td><td>Hasil langsung diterima</td><td>Hasil datang kemudian atau lewat notifikasi</td></tr>
+        <tr><td>Ketahanan</td><td>Kegagalan penerima langsung terasa di pemanggil</td><td>Antrean menyerap lonjakan dan kegagalan sementara</td></tr>
+        <tr><td>Kerumitan</td><td>Alur mudah dibaca dan di-debug</td><td>Alur tersebar, urutan dan duplikasi harus ditangani</td></tr>
+        <tr><td>Cocok untuk</td><td>Query, validasi, hasil dibutuhkan saat itu juga</td><td>Pengiriman email, pembuatan laporan, sinkronisasi antar service</td></tr>
+      </table>
+    </div>
+    <p>Pertanyaan penentu: apakah pengguna perlu hasilnya sekarang untuk melanjutkan? Jika tidak, kandidat kuat untuk asinkron. Asinkron menjawab sebagian masalah sesi 10 karena melepaskan keterikatan waktu antar service, tetapi menukarnya dengan konsistensi akhir.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-label">Materi — Message Queue</div>
+    <h2>Antrean Pesan</h2>
+    <div class="resp-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="resp-card"><div class="k">Producer</div><div class="d">Pihak yang membuat dan mengirim pesan ke antrean, lalu langsung melanjutkan pekerjaannya.</div></div>
+      <div class="resp-card"><div class="k">Queue (broker)</div><div class="d">Menyimpan pesan sampai ada yang memprosesnya. Bertindak sebagai penyangga antara dua service.</div></div>
+      <div class="resp-card"><div class="k">Consumer</div><div class="d">Mengambil pesan, memprosesnya, lalu mengirim acknowledgement (ack). Tanpa ack, pesan dianggap gagal dan dikirim ulang.</div></div>
+    </div>
+    <h3 class="sub">Queue vs Publish/Subscribe</h3>
+    <ul>
+      <li><b>Queue (point-to-point):</b> tiap pesan diproses oleh satu consumer. Cocok untuk membagi pekerjaan ke beberapa worker.</li>
+      <li><b>Publish/subscribe:</b> satu pesan disalin ke banyak subscriber. Cocok untuk memberi tahu beberapa service bahwa sesuatu telah terjadi.</li>
+    </ul>
+    <h3 class="sub">Jaminan Pengiriman</h3>
+    <div class="wide-table-wrap">
+      <table class="compare-table">
+        <tr><th>Jaminan</th><th>Arti</th><th>Risiko</th></tr>
+        <tr><td>At-most-once</td><td>Pesan dikirim paling banyak sekali</td><td>Pesan bisa hilang</td></tr>
+        <tr><td>At-least-once</td><td>Pesan dikirim ulang sampai di-ack</td><td>Pesan bisa terproses lebih dari sekali</td></tr>
+        <tr><td>Exactly-once</td><td>Pesan diproses tepat sekali</td><td>Sangat sulit dijamin end-to-end; umumnya didekati dengan at-least-once ditambah consumer idempoten</td></tr>
+      </table>
+    </div>
+    <p>Karena at-least-once adalah pilihan paling umum, <b>consumer harus idempoten</b>: memproses pesan yang sama dua kali tidak boleh menghasilkan efek ganda. Caranya, simpan ID pesan yang sudah diproses, atau rancang operasi agar hasilnya sama berapa kali pun dijalankan. Pesan yang terus gagal diarahkan ke <b>dead letter queue (DLQ)</b> agar tidak memblokir antrean dan bisa diperiksa manual.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-label">Materi — Event-Driven Architecture</div>
+    <h2>Service yang Bereaksi terhadap Kejadian</h2>
+    <p>Pada event-driven architecture, service tidak saling memerintah, tetapi mengumumkan fakta yang sudah terjadi, lalu service lain memutuskan sendiri bagaimana bereaksi. Pengumuman ini disebut <b>event</b>.</p>
+    <div class="resp-grid">
+      <div class="resp-card"><div class="k">Command</div><div class="d">Perintah kepada penerima tertentu, bisa ditolak. Contoh: <code>KirimEmailKonfirmasi</code>. Pengirim tahu siapa yang dituju.</div></div>
+      <div class="resp-card"><div class="k">Event</div><div class="d">Fakta yang sudah terjadi dan tidak bisa ditolak. Contoh: <code>PesananDibuat</code>. Pengirim tidak perlu tahu siapa yang mendengarkan.</div></div>
+    </div>
+    <p>Manfaat utamanya adalah <b>loose coupling</b>: service pesanan cukup menerbitkan <code>PesananDibuat</code>; service pembayaran, notifikasi, dan analitik bisa ditambahkan belakangan tanpa mengubah service pesanan. Dua gaya isi event yang umum:</p>
+    <ul>
+      <li><b>Event notification:</b> event hanya memuat ID dan jenis kejadian; penerima memanggil API untuk mengambil detail. Event kecil, tetapi menimbulkan ketergantungan sinkron kembali.</li>
+      <li><b>Event-carried state transfer:</b> event membawa data yang dibutuhkan penerima. Penerima mandiri, tetapi data terduplikasi dan skema event menjadi kontrak yang harus dijaga (sesi 12).</li>
+    </ul>
+    <div class="warn-box">
+      <div class="lbl">Harga yang Dibayar</div>
+      <ul>
+        <li><b>Konsistensi akhir:</b> setelah event terbit, service lain baru memperbarui datanya beberapa saat kemudian. Antarmuka harus siap menampilkan keadaan sementara.</li>
+        <li><b>Alur sulit dilacak:</b> satu proses bisnis tersebar di banyak service. Sertakan correlation ID di setiap pesan agar bisa ditelusuri (sesi 13).</li>
+        <li><b>Urutan tidak dijamin</b> pada sebagian broker, sehingga consumer harus tahan terhadap event yang datang terbalik atau ganda.</li>
+        <li><b>Saga:</b> transaksi lintas service dijalankan sebagai rangkaian event dengan langkah kompensasi jika ada yang gagal, melanjutkan pembahasan sesi 10.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-label">Materi — Webhook</div>
+    <h2>Webhook: Event lewat HTTP</h2>
+    <p>Webhook adalah cara paling sederhana menerapkan notifikasi event: service pengirim melakukan HTTP <code>POST</code> ke URL yang didaftarkan service penerima saat suatu kejadian terjadi. Tidak perlu broker, cukup endpoint HTTP, sehingga mudah dipakai antar service yang di-deploy terpisah di Render. Konsekuensinya, penerima harus sedang hidup dan dapat dijangkau, jadi perlu penanganan kegagalan sendiri.</p>
+    <h3 class="sub">Praktik yang Wajib Ada</h3>
+    <ul>
+      <li><b>Verifikasi tanda tangan:</b> pengirim menandatangani isi pesan dengan HMAC memakai secret bersama dan menaruhnya di header; penerima menghitung ulang dan membandingkan. Tanpa ini, siapa pun bisa memalsukan webhook. Ini lanjutan dari pembahasan keamanan di sesi 08.</li>
+      <li><b>Balas cepat:</b> penerima menjawab <code>2xx</code> secepatnya, lalu memproses di belakang (misalnya dengan memasukkan ke antrean). Pengirim biasanya menganggap timeout sebagai kegagalan.</li>
+      <li><b>Retry di sisi pengirim</b> dengan backoff, sehingga penerima harus idempoten; sertakan ID event unik di setiap kiriman.</li>
+      <li><b>Cegah replay:</b> sertakan timestamp dalam data yang ditandatangani dan tolak pesan yang terlalu lama.</li>
+    </ul>
+    <h3 class="sub">Kapan Webhook, Kapan Queue?</h3>
+    <div class="wide-table-wrap">
+      <table class="compare-table">
+        <tr><th>Aspek</th><th>Webhook</th><th>Message queue</th></tr>
+        <tr><td>Infrastruktur</td><td>Hanya endpoint HTTP</td><td>Memerlukan broker/layanan antrean</td></tr>
+        <tr><td>Penyangga saat penerima mati</td><td>Tidak ada, bergantung pada retry pengirim</td><td>Ya, pesan tersimpan di antrean</td></tr>
+        <tr><td>Penanganan lonjakan</td><td>Penerima langsung terbebani</td><td>Consumer mengambil sesuai kapasitas</td></tr>
+        <tr><td>Cocok untuk</td><td>Notifikasi antar sistem/organisasi berbeda, skala kecil</td><td>Pekerjaan internal yang butuh keandalan dan buffering</td></tr>
+      </table>
+    </div>
+    <p>Pola yang sering dipakai: webhook sebagai pintu masuk, lalu penerima langsung memasukkan pesan ke antrean (misalnya Cloudflare Queues) dan membalas <code>2xx</code>, sehingga pemrosesan berat terjadi di consumer.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-label">Diskusi Kelas</div>
+    <div class="discuss-box">
+      <div class="lbl">Aktivitas Kelompok</div>
+      <p style="margin-bottom:0;">Ambil alur lintas-service yang Anda rancang pada tugas sesi 10. Tentukan: (1) langkah mana yang harus tetap sinkron dan mana yang bisa dijadikan asinkron, beserta alasannya, (2) event apa yang diterbitkan dan siapa saja yang bereaksi, (3) apa yang terjadi jika consumer menerima event yang sama dua kali, (4) apa yang dilihat pengguna selama data belum konsisten.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-label">Rangkuman</div>
+    <ul>
+      <li>Asinkron melepaskan keterikatan waktu antar service, dengan imbalan konsistensi akhir dan alur yang lebih sulit dilacak.</li>
+      <li>Queue membagi pekerjaan ke satu consumer; pub/sub menyebarkan pesan ke banyak subscriber.</li>
+      <li>At-least-once adalah jaminan yang paling umum, sehingga consumer wajib idempoten dan pesan gagal diarahkan ke DLQ.</li>
+      <li>Event adalah fakta yang sudah terjadi; command adalah perintah. Event memberi loose coupling, tetapi skemanya menjadi kontrak.</li>
+      <li>Webhook sederhana namun harus diamankan (HMAC, timestamp), dibalas cepat, dan ditangani secara idempoten.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-label">Tugas &amp; Latihan</div>
+    <div class="task-box">
+      <div class="lbl">Tugas Kelompok</div>
+      <p style="margin-bottom:0;">Lengkapi dokumen arsitektur kelompok dengan <b>rancangan komunikasi asinkron</b> (1-2 halaman): (1) tabel "interaksi antar service → sinkron/asinkron → alasan", (2) katalog event (nama, pemilik/penerbit, isi data, penerima), (3) rancangan satu webhook atau antrean lengkap dengan penanganan duplikasi, retry, dan kegagalan permanen (DLQ atau penanganan manual), (4) satu skenario konsistensi akhir beserta tampilan yang dilihat pengguna. Dikumpulkan sebelum sesi 12.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-label">Referensi Sesi Ini</div>
+    <div class="ref-mini">
+      <div><b>Enterprise Integration Patterns</b> — Gregor Hohpe &amp; Bobby Woolf, pola messaging (queue, pub/sub, dead letter)</div>
+      <div><b>Designing Data-Intensive Applications</b> — Martin Kleppmann, bab tentang pemrosesan pesan dan stream</div>
+      <div><b>Microservices Patterns</b> — Chris Richardson, bab saga dan messaging</div>
+      <div><b>Dokumentasi Cloudflare Queues</b> — konsep producer, consumer, batching, retry, dan dead letter queue</div>
+    </div>
+  </div>
+</section>
+
+<footer>Sesi 11 · Web Service · Philipus Suryo Subandoro</footer>
+
+</body>
+</html>
